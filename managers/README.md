@@ -14,6 +14,8 @@ A library help you to manage windows
 
 ### Basic usage
 
+index.js
+
 	// init win manager
 	var oWindowManager = require('managers/window'),
 		winManager = new oWindowManager();
@@ -84,11 +86,109 @@ A library help you to manage windows
 
 ### Plugins usage
 
+Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboard, and Navigation
+
+UI element: AI is required.
+
 	var plugins = require('managers/plugins'),
 		oWindowManager = require('managers/window'),
 		winManager = new oWindowManager( plugins.windowChanged );
 
 ## TabGroup Manager
 
+### Basic usage
+
+xml
+
+	<Alloy>
+		<TabGroup id="tabgroup" class="win tabgroup"/>
+	</Alloy>
+
+js 
+
+	// init tabgroup manager
+	var oTabGroupManager = require('managers/tabgroup'),
+		tabGroup = new oTabGroupManager();
+	
+	tabGroup.init({
+		tabgroup: $.tabgroup,
+		tabs: [
+			{
+				title: 'Tab 1',
+				icon: '/images/tabs/icon-1.png',
+				url: 'path_to_tab_1'
+			},
+			{
+				title: 'Tab 2',
+				icon: '/images/tabs/icon-2.png',
+				url: 'path_to_tab_2'
+			}
+		]
+	});
+
+	// open a child window in Tab 2
+	tabGroup.load({
+		url: 'path_to_window',
+		isReset: false,
+		data: null,
+		tabIndex: 1
+	});
+
+	// get active tab
+	var activeIndex = tabGroup.getActiveTab(); // 1
+
+	// get Tab 2 infos
+	tabGroup.getCache(activeIndex); 
+
+	// get info of current win of Tab 2 
+	tabGroup.getCache(activeIndex, -1); // same with tabGroup.getCache(activeIndex, 1);
+
+	// get info of previous win of Tab 2 
+	tabGroup.getCache(activeIndex, 0); 
+
+	// load previous window of Tab 2
+	tabGroup.loadPrevious(new_data_for_win_path_to_tab_2);
+
+	// exit tabgroup
+	tabGroup.exit();
+
+### Advanced usage
+
+	tabGroup.init({
+		tabgroup: $.tabgroup,
+		tabs: [
+			// ...
+		],
+		onChange: tabGroupChanged,
+		onFocus:  tabGroupFocussed
+	});
+
+	function tabGroupChanged(status, params, win) {
+		if (status == 0) {
+			// before window create
+		} else if (status == 1) {
+			// window created
+		} else {
+			// window closed
+		}
+	};
+
+	function tabGroupFocussed(currentIndex, previousIndex, tabgroup) {
+		// tab focus changed
+	};
+
+### Plugins usage
+
+Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboard, and Navigation
+
+	var plugins = require('managers/plugins');
+	tabGroup.init({
+		tabgroup: $.tabgroup,
+		tabs: [
+			// ...
+		],
+		onChange: plugins.tabGroupChanged,
+		onFocus:  plugins.tabGroupFocussed
+	});
 
 ## Page Manager
