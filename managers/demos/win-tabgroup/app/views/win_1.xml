@@ -1,0 +1,5 @@
+<Alloy>
+	<Window title="Win 1" class="win">
+		<Button onClick="openWin2">Open win 2</Button>
+	</Window>
+</Alloy>

@@ -1,0 +1,5 @@
+<Alloy>
+	<Window title="Win 2" class="win">
+		<Button onClick="openMain">Open Main window</Button>
+	</Window>
+</Alloy>
