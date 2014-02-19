@@ -4,7 +4,8 @@ Managers
 titanium libraries
 
 ui.js and nav folder are used locally inside window.js, tabgroup.js, page.js and plugins.js. 
-plugins.js contains usefull plugins for window and tabgroup
+
+plugins.js contains useful plugins for window and tabgroup
 
 
 ## Window Manager
@@ -43,7 +44,7 @@ A library help you to manage windows
 	winManager.load({
 		url: 'path_to_new_window',
 		isReset: true,
-		data: 123 				// data for new window
+		data: 123 				// data for this window
 	});	
 
 	// get current window info
@@ -80,6 +81,12 @@ A library help you to manage windows
 	function winDestroy(params, win) {
 		// window will be closed after this 
 	}	
+
+### Plugins usage
+
+	var plugins = require('managers/plugins'),
+		oWindowManager = require('managers/window'),
+		winManager = new oWindowManager( plugins.windowChanged );
 
 ## TabGroup Manager
 
