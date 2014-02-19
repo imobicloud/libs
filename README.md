@@ -5,7 +5,7 @@ titanium libraries
 
 ## Managers
 
-View managers/readme.md for details
+View managers/README.md for details
 
 ## Size manager
 
