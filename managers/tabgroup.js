@@ -6,7 +6,7 @@ function TabGroupManager() {
 		onFocus,
 		onChange,
 		activeTab,
-		reloadTabAfterFocus;
+		updateTabsAfterFocus;
 
 	// PRIVATE FUNCTIONS ========================================================
 
@@ -43,7 +43,7 @@ function TabGroupManager() {
 		activeTab = args.defaultTab || 0;
 		onFocus   = args.onFocus    || emptyFunction;
 		onChange  = args.onChange   || emptyFunction;
-		reloadTabAfterFocus = true;
+		updateTabsAfterFocus = true;
 		
 		// render tabs
 
@@ -134,10 +134,16 @@ function TabGroupManager() {
 	function load(params) {
 		Ti.API.log('Tabgroup Manager: load Tab ' + params.tabIndex + ' - Page ' + params.url + ': ' + JSON.stringify(params.data));
 
-		// cleanup previous tab, for tab's child only
 		if (params.tabIndex != activeTab) {
+			updateTabsAfterFocus = false;
+			
+			// cleanup previous tab, for tab's child only
 			var prev = getCache(activeTab, -1);
 			prev.controller.cleanup();
+			
+			// focus tab
+			tabgroup.setActiveTab(params.tabIndex);
+			activeTab = params.tabIndex;
 		}
 
 		var win = UICaches[params.tabIndex].set(params);
@@ -155,12 +161,6 @@ function TabGroupManager() {
 			params.isOpened = true;
 		} else {
 			win.addEventListener('androidback', androidback);
-		}
-		
-		if (params.tabIndex != activeTab) {
-			reloadTabAfterFocus = false;
-			tabgroup.setActiveTab(params.tabIndex);
-			activeTab = params.tabIndex;
 		}
 		
 		Ti.API.log('Tabgroup Manager: Tab ' + params.tabIndex + ' - Cached ' + getCache(params.tabIndex).length);
@@ -206,6 +206,11 @@ function TabGroupManager() {
 	};
 	
 	function tabGroupFocus(e) {
+		if (updateTabsAfterFocus === false) {
+			updateTabsAfterFocus = true;
+			return;
+		}
+		
 		// this is required when tab has textfield, Android only
 		if (OS_ANDROID && e.tab == null) { return; }
 		
@@ -217,6 +222,7 @@ function TabGroupManager() {
 
 		activeTab = tabIndex;
 		
+		// fire focus event
 		onFocus(tabIndex, previousIndex, tabgroup);
 
 		// cleanup previous tab
@@ -224,13 +230,10 @@ function TabGroupManager() {
 			var prev = getCache(previousIndex, -1);
 			prev.controller.cleanup();
 		}
-		
+	
 		// reload current tab
-		if (reloadTabAfterFocus !== false) {
-			var current = getCache(tabIndex, -1);
-			current.controller.reload();
-		}
-		reloadTabAfterFocus = true;
+		var current = getCache(tabIndex, -1);
+		current.controller.reload();
 		
 		Ti.API.log('Tabgroup Manager: Tab ' + tabIndex + ' focussed! ');
 	}
