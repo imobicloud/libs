@@ -29,6 +29,8 @@ nav = {
  	homeAction: function(){},	// Android only, action when click on logo
  	backgroundImage: 'url' 		// Android only, background for action bar
 }
+
+icon size: ios: 44, android 32
 * */
 
 exports.load = function(params, controller, win, type) {

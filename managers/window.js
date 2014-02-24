@@ -104,7 +104,7 @@ function WindowManager(onChange) {
 	  	var cache = getCache(),
 	  		navigationWindow;
 	  	for(var i = cache.length - 1; i >= 0; i--){
-			if (navWin = cache[i].navigationWindow) {
+			if (navigationWindow = cache[i].navigationWindow) {
 				break;
 			}
 		};
