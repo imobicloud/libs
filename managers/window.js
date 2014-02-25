@@ -90,8 +90,10 @@ function WindowManager(onChange) {
 	}
 	
 	function windowClosed(e) {
-	  	getCache(-1).isOpened = false;
-	  	loadPrevious();
+	  	var cache = getCache(-1),
+	  		iosback = cache.controller.iosback;
+	  	cache.isOpened = false;
+	  	loadPrevious(iosback ? iosback() : null);
 	}
 	
 	function createNavigationWindow(params, win) {

@@ -22,6 +22,7 @@ var Alloy = require('alloy');
 	 - reload:  called when window focus again
 	 - unload:  called when window closed
 	 - androidback: back event for android
+	 - iosback: back event for ios default Back button
  };
  * */
 function UIManager(onChange) {
