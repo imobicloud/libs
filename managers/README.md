@@ -191,4 +191,6 @@ Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboa
 		onFocus:  plugins.tabGroupFocussed
 	});
 
+	// set exports.nav.leftNavButton to false to remove exists leftNavButton
+
 ## Page Manager

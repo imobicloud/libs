@@ -65,11 +65,15 @@ function load(params, win, nav) {
 	}
 	
 	var leftNavButton = nav.leftNavButton;
-	if (leftNavButton) {
-		if (leftNavButton.length == 1) {
-			win.leftNavButton = createNavButton(leftNavButton[0]);
+	if (leftNavButton != null) {
+		if (leftNavButton) {
+			if (leftNavButton.length == 1) {
+				win.leftNavButton = createNavButton(leftNavButton[0]);
+			} else {
+				win.leftNavButton = createNavButtons(leftNavButton);
+			}
 		} else {
-			win.leftNavButton = createNavButtons(leftNavButton);
+			win.leftNavButton = Ti.UI.createView();
 		}
 	} else if (params.isReset == false) {
 		// use default Back button
