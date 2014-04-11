@@ -191,6 +191,15 @@ Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboa
 		onFocus:  plugins.tabGroupFocussed
 	});
 
+	exports.nav = {
+		title: 'XCard'
+	};
+	
+	plugins.updateTabGroupNav({
+		controller: exports, 
+		tabGroup: $.tabgroup
+	});
+
 	// set exports.nav.leftNavButton to false to remove exists leftNavButton
 
 ## Page Manager
