@@ -22,6 +22,7 @@ var Alloy = require('alloy');
 	 - reload:  called when window focus again
 	 - unload:  called when window closed
 	 - androidback: back event for android
+	 - iosback: back event for ios default Back button
  };
  * */
 function UIManager(onChange) {
@@ -43,7 +44,11 @@ function UIManager(onChange) {
 		if (onChange(0, params) === false) { return; }
 		
 		// cleanup previous
-		cache.length && cache[cache.length - 1].controller.cleanup();
+		if (cache.length) {
+			var prev = cache[cache.length - 1];
+			prev._alreadyCleanup = true;
+			prev.controller.cleanup();
+		}
 		
 		// load new
 		var controller = Alloy.createController(params.url, params.data);
@@ -73,7 +78,7 @@ function UIManager(onChange) {
 	function destroyObject(params) {
 		var controller = params.controller;
 		
-		controller.cleanup();
+		params._alreadyCleanup !== true && controller.cleanup();
 		controller.unload();
 		
 		onChange(2, params, controller.getView());
@@ -102,7 +107,9 @@ function UIManager(onChange) {
 		}
 		
 		// reload previous
-		cache[end - 1].controller.reload(data);
+		var prev = cache[end - 1];
+		prev.controller.reload(data);
+		prev._alreadyCleanup = false;
 		
 		// destroy un-used object
 		remove(start, end);

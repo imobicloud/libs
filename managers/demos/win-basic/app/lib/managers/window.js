@@ -56,6 +56,10 @@ function WindowManager(onChange) {
 					
 					navigationWindow.openWindow(win);
 				} else {
+					var buttonBack = Ti.UI.createButton({ image: '/images/back.png', style: Ti.UI.iPhone.SystemButtonStyle.PLAIN });
+					buttonBack.addEventListener('click', loadPrevious);
+					win.leftNavButton = buttonBack;
+					
 					createNavigationWindow(params, win);
 				}
 			}
@@ -90,8 +94,10 @@ function WindowManager(onChange) {
 	}
 	
 	function windowClosed(e) {
-	  	getCache(-1).isOpened = false;
-	  	loadPrevious();
+	  	var cache = getCache(-1),
+	  		iosback = cache.controller.iosback;
+	  	cache.isOpened = false;
+	  	loadPrevious(iosback ? iosback() : null);
 	}
 	
 	function createNavigationWindow(params, win) {
@@ -104,7 +110,7 @@ function WindowManager(onChange) {
 	  	var cache = getCache(),
 	  		navigationWindow;
 	  	for(var i = cache.length - 1; i >= 0; i--){
-			if (navWin = cache[i].navigationWindow) {
+			if (navigationWindow = cache[i].navigationWindow) {
 				break;
 			}
 		};

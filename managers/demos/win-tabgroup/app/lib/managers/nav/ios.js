@@ -30,6 +30,8 @@ nav = {
  	homeAction: function(){},	// Android only, action when click on logo
  	backgroundImage: 'url' 		// Android only, background for action bar
 }
+
+icon size: ios: 44, android 32
 * */
 
 exports.load = function(params, controller, win, type) {
@@ -63,11 +65,15 @@ function load(params, win, nav) {
 	}
 	
 	var leftNavButton = nav.leftNavButton;
-	if (leftNavButton) {
-		if (leftNavButton.length == 1) {
-			win.leftNavButton = createNavButton(leftNavButton[0]);
+	if (leftNavButton != null) {
+		if (leftNavButton) {
+			if (leftNavButton.length == 1) {
+				win.leftNavButton = createNavButton(leftNavButton[0]);
+			} else {
+				win.leftNavButton = createNavButtons(leftNavButton);
+			}
 		} else {
-			win.leftNavButton = createNavButtons(leftNavButton);
+			win.leftNavButton = Ti.UI.createView();
 		}
 	} else if (params.isReset == false) {
 		// use default Back button

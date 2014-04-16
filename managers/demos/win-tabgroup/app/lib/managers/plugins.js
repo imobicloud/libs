@@ -75,7 +75,6 @@ function winDestroy(params, win) {
 
 /*
  params = {
- 	title: '',
  	controller: exports,
  	tabgroup: Ti.UI.TabGroup
  }
@@ -83,9 +82,8 @@ function winDestroy(params, win) {
 exports.updateTabGroupNav = function(params) {
 	if (useNav) {
 		if (OS_ANDROID) {
-			params.controller.nav = {
-				title: params.title
-			};
+			var tabgroup = Alloy.Globals.Tabgroup;
+			params.controller.nav = _.extend({}, tabgroup.getCache(tabgroup.getActiveTab(), -1).controller.nav, params.controller.nav);
 		}
 	} else {
 		params.tabgroup.navBarHidden = true;
@@ -101,7 +99,9 @@ exports.tabGroupChanged = function(status, params, win) {
 	} else if (status == 1) {
 		var controller = params.controller;
 		if (useNav && controller.nav) {
-			navigation.load(params, controller, win, 'tabgroupWindow');
+			if (OS_IOS || params.isRoot !== true) {
+				navigation.load(params, controller, win, 'tabgroupWindow');
+			}
 		} else {
 			win.navBarHidden = true;
 		}
