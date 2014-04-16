@@ -62,7 +62,7 @@ function TabGroupManager(args) {
 					tabIndex: i,
 					url: tab.url,
 					data: tab.data,
-					isRoot: true
+					_isRootWindow: true
 				})
 			}));
 		};
@@ -98,7 +98,7 @@ function TabGroupManager(args) {
 	
 	function winDestroy(params, win) {
 		// do not remove root window of the tab
-		if (params.isRoot) {
+		if (params._isRootWindow) {
 			return;
 		}
 		
@@ -233,7 +233,6 @@ function TabGroupManager(args) {
 		
 	  	if (getCache(activeTab).length > 1) {
 	  		loadPrevious();
-	  		return false;
 	  	}
 	}
 	

@@ -95,7 +95,7 @@ exports.tabGroupChanged = function(status, params, win) {
 	} else if (status == 1) {
 		var controller = params.controller;
 		if (useNav && controller.nav) {
-			if (OS_IOS || params.isRoot !== true) {
+			if (OS_IOS || params._isRootWindow !== true) {
 				navigation.load(params, controller, win, 'tabgroupWindow');
 			}
 		}
@@ -128,7 +128,7 @@ exports.tabGroupFocussed = function(currentIndex, previousIndex, tabgroup) {
 function attachUtils(params, win) {
   	// attach AI
 	
-  	var ai = Alloy.createController('elements/ai', { visible: params.isRoot !== true }); // root window of tab: ai not show on load
+  	var ai = Alloy.createController('elements/ai', { visible: params._isRootWindow !== true }); // root window of tab: ai not show on load
   	params.ai = ai;
 	win.add( ai.getView() );
 	
