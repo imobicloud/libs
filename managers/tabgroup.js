@@ -204,13 +204,13 @@ function TabGroupManager(args) {
 		var tabIndex = e.index,
 			previousIndex = e.previousIndex;
 
-		// first load
-		if (previousIndex === -1) { return; }
-
 		activeTab = tabIndex;
 		
 		// fire focus event
 		onFocus(tabIndex, previousIndex, tabgroup);
+		
+		// first load
+		if (previousIndex === -1) { return; }
 
 		// cleanup previous tab
 		if (previousIndex != tabIndex) {

@@ -71,21 +71,6 @@ function winDestroy(params, win) {
    start Tabgroup plugins
    ========================================================================== */
 
-/*
- params = {
- 	controller: exports,
- 	tabgroup: Ti.UI.TabGroup
- }
- * */
-exports.updateTabGroupNav = function(params) {
-	if (useNav) {
-		if (OS_ANDROID) {
-			var tabgroup = Alloy.Globals.Tabgroup;
-			params.controller.nav = _.extend({}, tabgroup.getCache(tabgroup.getActiveTab(), -1).controller.nav, params.controller.nav);
-		}
-	}
-};
-
 exports.tabGroupChanged = function(status, params, win) {
 	if (status == 0) {
 		// var tabgroup = Alloy.Globals.Tabgroup;
@@ -105,7 +90,7 @@ exports.tabGroupChanged = function(status, params, win) {
 };
 
 exports.tabGroupFocussed = function(currentIndex, previousIndex, tabgroup) {
-	toggleAI(true);
+	previousIndex != -1 && toggleAI(true); //TODO: remove this condition
 	
 	// update action bar's buttons
 	if (useNav && OS_ANDROID) {

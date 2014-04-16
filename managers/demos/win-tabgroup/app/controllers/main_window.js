@@ -24,6 +24,10 @@ exports.unload = function() {
 };
 
 function init() {
+	exports.nav = {
+		title: 'XCard'
+	};
+	
 	var plugins = require('managers/plugins');
 	
   	// initialize tabgroup manager
@@ -53,13 +57,4 @@ function init() {
 		});
 	
 	Alloy.Globals.Tabgroup = tabGroup;
-
-	exports.nav = {
-		title: 'XCard'
-	};
-
-	plugins.updateTabGroupNav({
-		controller: exports, 
-		tabgroup: $.tabgroup
-	});
 }

@@ -192,11 +192,6 @@ Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboa
 	exports.nav = {
 		title: 'XCard'
 	};
-	
-	plugins.updateTabGroupNav({
-		controller: exports, 
-		tabGroup: $.tabgroup
-	});
 
 	// set exports.nav.leftNavButton to false to remove exists leftNavButton
 
