@@ -43,6 +43,9 @@ function WindowManager(onChange) {
 	function winBeforeLoad(params) {}
 	
 	function winLoaded(params, win) {
+		// cleanup cache, in case of window is closed not by Window Manager
+		win.addEventListener('close', windowClosed);
+					
 		// make window visible
 		if (OS_IOS && win.apiName != 'Ti.UI.TabGroup') {
 			if (params.isReset !== false) {
@@ -50,10 +53,6 @@ function WindowManager(onChange) {
 			} else {
 				var navigationWindow = getNavigationWindow();
 				if (navigationWindow) {
-					// cleanup cache, in case of window is closed, by clicked on the default Back button
-					params.isOpened = true;
-					win.addEventListener('close', windowClosed);
-					
 					navigationWindow.openWindow(win);
 				} else {
 					var buttonBack = Ti.UI.createButton({ image: '/images/back.png', style: Ti.UI.iPhone.SystemButtonStyle.PLAIN });
@@ -73,21 +72,20 @@ function WindowManager(onChange) {
 	
 	function winDestroy(params, win) {
 		// hide window
-		if (OS_IOS && win.apiName != 'Ti.UI.TabGroup') {
-			if (params.navigationWindow) {
-				params.navigationWindow.close();
-			} else {
-				if (params.isOpened !== false) {
-					params.isOpened = false;
-					win.removeEventListener('close', windowClosed);
-					
+		if (params._alreadyClosed !== true) {
+			win.removeEventListener('close', windowClosed);
+			
+			if (OS_IOS && win.apiName != 'Ti.UI.TabGroup') {
+				if (params.navigationWindow) {
+					params.navigationWindow.close();
+				} else {
 					var navigationWindow = getNavigationWindow();
 					navigationWindow.closeWindow(win);
 				}
+			} else {
+				// Caution: if win is TabGroup, make sure exitOnClose is false, or it will cause error on Android
+				win.close();
 			}
-		} else {
-			// Caution: if win is TabGroup, make sure exitOnClose is false, or it will cause error on Android
-			win.close();
 		}
 		
 		Ti.API.log('Window Manager: Cached window: ' + getCache().length);
@@ -96,8 +94,8 @@ function WindowManager(onChange) {
 	function windowClosed(e) {
 	  	var cache = getCache(-1),
 	  		iosback = cache.controller.iosback;
-	  	cache.isOpened = false;
-	  	loadPrevious(iosback ? iosback() : null);
+	  	cache._alreadyClosed = true;
+	  	loadPrevious(OS_IOS && iosback ? iosback() : null);
 	}
 	
 	function createNavigationWindow(params, win) {

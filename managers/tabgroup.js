@@ -102,21 +102,14 @@ function TabGroupManager(args) {
 			return;
 		}
 		
-		var controller = params.controller;
-		
-		if (OS_IOS) {
-			if (params.isReset === false) {
-				win.removeEventListener('close', windowClosed);
-			}
+		if (params._alreadyClosed !== true) {
+			win.removeEventListener('close', windowClosed);
 			
-			// remove window from tab
-			if (params.isOpened !== false) {
+			if (OS_IOS) {
 				tabgroup.tabs[params.tabIndex].close(win);
+			} else {
+				win.close();
 			}
-			
-			params.isOpened = false;
-		} else {
-			win.close();
 		}
 	}
 	
@@ -148,15 +141,10 @@ function TabGroupManager(args) {
 		// make window visible, for tab's child only
 		tabgroup.tabs[params.tabIndex].open(win);
 		
-		// handle events, for tab's child only
-		if (OS_IOS) {
-			if (params.isReset === false) {
-				// cleanup cache, in case of window is closed by clicked on the default Back button or Tab button
-				win.addEventListener('close', windowClosed);
-			}
-			
-			params.isOpened = true;
-		} else {
+		// cleanup cache, in case of window is closed not by Tabgroup Manager
+		win.addEventListener('close', windowClosed);
+		
+		if (OS_ANDROID) {
 			win.addEventListener('androidback', androidback);
 		}
 		
@@ -164,8 +152,10 @@ function TabGroupManager(args) {
 	}
 	
 	function windowClosed(e) {
-	  	getCache(activeTab, -1).isOpened = false;
-	  	loadPrevious();
+		var cache = getCache(activeTab, -1),
+	  		iosback = cache.controller.iosback;
+	  	cache._alreadyClosed = true;
+	  	loadPrevious(OS_IOS && iosback ? iosback() : null);
 	}
 
 	/*
