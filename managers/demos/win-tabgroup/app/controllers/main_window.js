@@ -26,39 +26,40 @@ exports.unload = function() {
 function init() {
 	var plugins = require('managers/plugins');
 	
-	plugins.updateTabGroupNav({
-		title: 'Pinzly', 
-		controller: exports, 
-		tabgroup: $.tabgroup
-	});
-	
   	// initialize tabgroup manager
 	
 	var oTabGroupManager = require('managers/tabgroup'),
-		tabGroup = new oTabGroupManager();
+		tabGroup = new oTabGroupManager({
+			tabgroup: $.tabgroup,
+			tabs: [
+				{
+					title: 'Win 1',
+					icon: '/images/tabs/icon.png',
+					url: 'win_1'
+				},
+				{
+					title: 'Win 2',
+					icon: '/images/tabs/icon.png',
+					url: 'win_2'
+				},
+				{
+					title: 'Win 3',
+					icon: '/images/tabs/icon.png',
+					url: 'win_3'
+				}
+			],
+			onChange: plugins.tabGroupChanged,
+			onFocus:  plugins.tabGroupFocussed
+		});
 	
 	Alloy.Globals.Tabgroup = tabGroup;
-	
-	tabGroup.init({
-		tabgroup: $.tabgroup,
-		tabs: [
-			{
-				title: 'Win 1',
-				icon: '/images/tabs/icon.png',
-				url: 'win_1'
-			},
-			{
-				title: 'Win 2',
-				icon: '/images/tabs/icon.png',
-				url: 'win_2'
-			},
-			{
-				title: 'Win 3',
-				icon: '/images/tabs/icon.png',
-				url: 'win_3'
-			}
-		],
-		onChange: plugins.tabGroupChanged,
-		onFocus:  plugins.tabGroupFocussed
+
+	exports.nav = {
+		title: 'XCard'
+	};
+
+	plugins.updateTabGroupNav({
+		controller: exports, 
+		tabgroup: $.tabgroup
 	});
 }

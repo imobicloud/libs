@@ -108,23 +108,21 @@ js
 
 	// init tabgroup manager
 	var oTabGroupManager = require('managers/tabgroup'),
-		tabGroup = new oTabGroupManager();
-	
-	tabGroup.init({
-		tabgroup: $.tabgroup,
-		tabs: [
-			{
-				title: 'Tab 1',
-				icon: '/images/tabs/icon-1.png',
-				url: 'path_to_tab_1'
-			},
-			{
-				title: 'Tab 2',
-				icon: '/images/tabs/icon-2.png',
-				url: 'path_to_tab_2'
-			}
-		]
-	});
+		tabGroup = new oTabGroupManager({
+			tabgroup: $.tabgroup,
+			tabs: [
+				{
+					title: 'Tab 1',
+					icon: '/images/tabs/icon-1.png',
+					url: 'path_to_tab_1'
+				},
+				{
+					title: 'Tab 2',
+					icon: '/images/tabs/icon-2.png',
+					url: 'path_to_tab_2'
+				}
+			]
+		});
 
 	// open a child window in Tab 2
 	tabGroup.load({

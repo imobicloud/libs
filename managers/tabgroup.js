@@ -1,12 +1,16 @@
 var Alloy = require('alloy');
 
-function TabGroupManager() {
-	var UICaches, 
-		tabgroup, 
-		onFocus,
-		onChange,
-		activeTab,
-		updateTabsAfterFocus;
+function TabGroupManager(args) {
+	var UICaches = [], 
+		tabgroup = args.tabgroup, 
+		onFocus  = args.onFocus  || emptyFunction,
+		onChange = args.onChange || emptyFunction,
+		activeTab = args.defaultTab || 0,
+		updateTabsAfterFocus = true;
+	
+	init(args.tabs);
+	
+	args = null;
 
 	// PRIVATE FUNCTIONS ========================================================
 
@@ -37,26 +41,19 @@ function TabGroupManager() {
 		 onFocus: function(currentIndex, previousIndex, tabgroup){}
 	 }
 	 * */
-	function init(args) {
-		UICaches  = [];
-		tabgroup  = args.tabgroup;
-		activeTab = args.defaultTab || 0;
-		onFocus   = args.onFocus    || emptyFunction;
-		onChange  = args.onChange   || emptyFunction;
-		updateTabsAfterFocus = true;
-		
+	function init(arrayTab) {
 		// render tabs
 
 		var tabs = [], 
 			oUIManager = require('managers/ui');
 
-		for (var i = 0, ii = args.tabs.length; i < ii; i++) {
+		for (var i = 0, ii = arrayTab.length; i < ii; i++) {
 			var UIManager = new oUIManager(UIChange);
 			UICaches.push(UIManager);
 
 			// render tab button
 			
-			var tab = args.tabs[i];
+			var tab = arrayTab[i];
 			
 			tabs.push(Ti.UI.createTab({
 				icon: tab.icon,
@@ -255,7 +252,6 @@ function TabGroupManager() {
 	// PUBLIC FUNCTIONS ========================================================
 
 	return {
-		init: init,
 		load: load,
 		loadPrevious: loadPrevious,
 		getCache: getCache,
