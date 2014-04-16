@@ -44,8 +44,6 @@ function winLoaded(params, win) {
 		if (controller.nav) {
 			navigation.load(params, controller, win, 'window');
 		}
-	} else {
-		win.navBarHidden = true;
 	}
 	
 	if (win.apiName != 'Ti.UI.TabGroup') {
@@ -85,8 +83,6 @@ exports.updateTabGroupNav = function(params) {
 			var tabgroup = Alloy.Globals.Tabgroup;
 			params.controller.nav = _.extend({}, tabgroup.getCache(tabgroup.getActiveTab(), -1).controller.nav, params.controller.nav);
 		}
-	} else {
-		params.tabgroup.navBarHidden = true;
 	}
 };
 
@@ -102,8 +98,6 @@ exports.tabGroupChanged = function(status, params, win) {
 			if (OS_IOS || params.isRoot !== true) {
 				navigation.load(params, controller, win, 'tabgroupWindow');
 			}
-		} else {
-			win.navBarHidden = true;
 		}
 		
 		attachUtils(params, win);
