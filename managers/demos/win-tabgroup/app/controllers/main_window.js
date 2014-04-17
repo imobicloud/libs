@@ -24,15 +24,13 @@ exports.unload = function() {
 };
 
 function init() {
-	exports.nav = {
-		title: 'XCard'
-	};
-	
-	var plugins = require('managers/plugins');
+	OS_ANDROID && (exports.nav = { title: 'Demo' });
 	
   	// initialize tabgroup manager
 	
-	var oTabGroupManager = require('managers/tabgroup'),
+	var oPlugins = require('managers/plugins'),
+		plugins  = new oPlugins('tabgroup', { navigation: true }),
+		oTabGroupManager = require('managers/tabgroup'),
 		tabGroup = new oTabGroupManager({
 			tabgroup: $.tabgroup,
 			tabs: [

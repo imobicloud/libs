@@ -1,7 +1,9 @@
 init();
 
 function init() {
-	var plugins = require('managers/plugins');
+	var oPlugins = require('managers/plugins'),
+		plugins  = new oPlugins('window', { navigation: true });
+		
 	Alloy.Globals.toggleAI = plugins.toggleAI;
 	Alloy.Globals.updateNav = plugins.updateNav;
 	
