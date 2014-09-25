@@ -1,15 +1,11 @@
 var Alloy = require('alloy');
 
 function Plugins(config) {
-	var _return = {
-		windowShow: windowShow,
-		windowHide: windowHide
-	};
+	var _return = {};
 	
 	config = _.extend({
 		ai: true,
-		keyboard: true, // if win.hasWebview == "true", this will be ignore, https://jira.appcelerator.org/browse/TC-1056
-		toast: false
+		keyboard: true // if win.hasWebview == "true", this will be ignore, https://jira.appcelerator.org/browse/TC-1056
 	}, config);
 	
 	init();
@@ -17,24 +13,17 @@ function Plugins(config) {
 	// PRIVATE FUNCTIONS ========================================================
 	
 	function init() {
+		_return.windowShow = windowShow;
+		_return.windowHide = windowHide;
+		
 		config.ai 		&& (_return.toggleAI = toggleAI); 
 		config.keyboard && (_return.hideKeyboard = hideKeyboard); 
-		config.toast    && (_return.showToast = showToast);
 	}
 	
 	function windowShow(params, e) {
 		var win = params.controller.getView();
-		if (win.hasNavBar == 'false') {
-			if (OS_IOS) {
-				win.navBarHidden = true;
-			} else {
-				win.addEventListener('open', function(e) { e.source.activity.actionBar.hide(); });
-			}
-		}
-		
 		config.ai 		&& loadAI(params, win);
 		config.keyboard && loadKeyboard(params, win);
-		config.toast    && loadToast(params, win);
 	}
 	
 	function windowHide(params, e) {
@@ -50,9 +39,9 @@ function Plugins(config) {
    ========================================================================== */
 	  
 	function loadAI(params, win) {
-		var ai = Alloy.createWidget('com.imobicloud.ai', { visible: true });
+	  	var ai = Alloy.createController('elements/ai', { visible: true });
 	  	params._ai = ai;
-	  	win.add( ai.getView() );
+		win.add( ai.getView() );
 	}
 	
 	function toggleAI(visible, message, timeout) {
@@ -80,8 +69,6 @@ function Plugins(config) {
 		}
 	};
 	
-	//
-	
 	function loadKeyboard(params, win) {
 	  	// attach hidden textfield for hiding keyboard
 		
@@ -92,7 +79,7 @@ function Plugins(config) {
 		
 		// hide keyboard on tap
 		
-		if (win.hasWebview != 'true') {
+		if (win.hasWebview != "true") {
 			win.addEventListener('singletap', function(e) {
 				if ( ['Ti.UI.TextField', 'Ti.UI.TextArea', 'Ti.UI.SearchBar', 'Ti.UI.Android.SearchView'].indexOf( e.source.apiName ) == -1 ) {
 					hideKeyboard();
@@ -102,8 +89,6 @@ function Plugins(config) {
 	}
 	  
 	function hideKeyboard() {
-		//TODO: try this Ti.UI.Android.hideSoftKeyboard();
-		
 		if (OS_ANDROID || Ti.App.keyboardVisible) { // Ti.App.keyboardVisible for iOS only
 			var current = Alloy.Globals.WinManager.getCache(-1);
 		  	if (current == null) {
@@ -115,28 +100,6 @@ function Plugins(config) {
 			  	txt.focus();
 			  	txt.blur();
 			}
-		}
-	}
-	
-	//
-	
-	function loadToast(params, win) {
-	  	var toast = Alloy.createWidget('com.imobicloud.toast', { hasNavBar: win.hasNavBar });
-	  	params._toast = toast;
-	  	win.add( toast.getView() );
-	}
-	
-	function showToast(args) {
-	    var current = Alloy.Globals.WinManager.getCache(-1);
-	  	if (current == null) {
-			current = Alloy.Globals.Tabgroup.getCache(-1, -1);
-	  	}
-		
-		if (current && current._toast) {
-			current._toast.show(args);
-		} else {
-			if (!args.buttonNames) { args.buttonNames = ['OK']; }
-		    Ti.UI.createAlertDialog(args).show();
 		}
 	}
 	

@@ -3,7 +3,7 @@ Managers
 
 titanium libraries
 
-ui.js and nav folder are used locally inside window.js, tabgroup.js, page.js and plugins.js. 
+ui.js is used locally inside window.js, tabgroup.js, page.js and plugins.js. 
 
 plugins.js contains useful plugins for window and tabgroup
 
@@ -86,13 +86,27 @@ index.js
 
 ### Plugins usage
 
-Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboard, and Navigation
+Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboard
 
 UI element: AI is required.
 
-	var plugins = require('managers/plugins'),
+	var oPlugins = require('managers/plugins'),
+		plugins  = new oPlugins('window', { ai: true, keyboard: true }),
 		oWindowManager = require('managers/window'),
 		winManager = new oWindowManager( plugins.windowChanged );
+
+NOTE: 
+	if window has a webview, and keyboard is true, the webview is freezed. 
+	https://jira.appcelerator.org/browse/TC-1056
+	To fix this, set win.hasWebview to "true" and handle hide keyboard inside webview
+
+	<Alloy>
+		<Window class="win" hasWebview="true">
+			<WebView id="container" url="/webview/html/index.html"/>
+			<Require id="graph" src="elements/graph"/>
+		</Window>
+	</Alloy>
+
 
 ## TabGroup Manager
 
@@ -177,7 +191,7 @@ js
 
 ### Plugins usage
 
-Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboard, and Navigation
+Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboard
 
 	var plugins = require('managers/plugins');
 	tabGroup.init({
@@ -188,11 +202,5 @@ Default plugins are: Activity Indicator, a hidden textfield for auto hide keyboa
 		onChange: plugins.tabGroupChanged,
 		onFocus:  plugins.tabGroupFocussed
 	});
-
-	exports.nav = {
-		title: 'XCard'
-	};
-
-	// set exports.nav.leftNavButton to false to remove exists leftNavButton
 
 ## Page Manager
