@@ -1,6 +1,6 @@
 exports.load = function load(win, nav) {
   	if (nav.titleControl) {
-  		if ( Alloy.Globals.isIOS7 ) {
+  		if ( parseInt(Ti.Platform.version.split(".")[0], 10) > 6 ) {
   			nav.titleControl.borderColor = nav.titleControl.barColor; 
   		}
   		
@@ -16,8 +16,7 @@ exports.load = function load(win, nav) {
 		if (leftNavButtons.length == 1) {
 			win.leftNavButton  = createNavButton(leftNavButtons[0]);
 		} else {
-			// win.leftNavButtons = createNavButtons(leftNavButtons);  //TODO: click event does not fire with leftNavButtons
-			   win.leftNavButton  = createNavButtons(leftNavButtons);
+			win.leftNavButtons = createNavButtons(leftNavButtons);
 		}
 	}	
 		
@@ -35,11 +34,11 @@ exports.load = function load(win, nav) {
 function createNavButtons(params) {
 	//TODO: click event does not fire with rightNavButtons
 	/*
-	var navButtons = [];
+	var rightNavButtons = [];
   	for(var i = params.length - 1; i >= 0; i--){
-	  	navButtons.push( createNavButton(params[i]) );
+	  	rightNavButtons.push( createNavButton(params[i]) );
 	};
-	return navButtons;
+	return rightNavButtons;
 	*/
 	
 	var view = Ti.UI.createView({ width: Ti.UI.SIZE, layout: 'horizontal' });
