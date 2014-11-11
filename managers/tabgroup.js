@@ -119,7 +119,9 @@ function TabGroupManager() {
 			// tabgroup window does not allow remove root window
 			params.isReset = false;
 			
-			var win = UICaches[tabIndex].load(params);
+			UICaches[tabIndex].load(params);
+			
+			var win = params.controller.getView();
 			
 			win.addEventListener('open', windowOpened);
 			
