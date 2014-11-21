@@ -62,4 +62,4 @@ icon size:
 		96 × 96 		 area in 128 × 128 (xxxhdpi)
 * */
 exports.load = navigation.load;
-exports.update = navigation.update;
+exports.update = navigation.load;
