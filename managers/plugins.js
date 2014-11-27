@@ -1,5 +1,7 @@
 var Alloy = require('alloy');
 
+// hasAI: true, hasNavBar, hasWebview
+
 function Plugins(config) {
 	var _return = {
 		windowShow: windowShow,
@@ -50,7 +52,7 @@ function Plugins(config) {
    ========================================================================== */
 	  
 	function loadAI(params, win) {
-		var ai = Alloy.createWidget('com.imobicloud.ai', { visible: true });
+		var ai = Alloy.createWidget('com.imobicloud.ai', { visible: win.hasAI != 'false' });
 	  	params._ai = ai;
 	  	win.add( ai.getView() );
 	}

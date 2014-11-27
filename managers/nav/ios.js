@@ -16,7 +16,8 @@ exports.load = function load(win, nav) {
 		if (leftNavButtons.length == 1) {
 			win.leftNavButton  = createNavButton(leftNavButtons[0]);
 		} else {
-			win.leftNavButtons = createNavButtons(leftNavButtons);
+			// win.leftNavButtons = createNavButtons(leftNavButtons);  //TODO: click event does not fire with leftNavButtons
+			   win.leftNavButton  = createNavButtons(leftNavButtons);
 		}
 	}	
 		
@@ -34,11 +35,11 @@ exports.load = function load(win, nav) {
 function createNavButtons(params) {
 	//TODO: click event does not fire with rightNavButtons
 	/*
-	var rightNavButtons = [];
+	var navButtons = [];
   	for(var i = params.length - 1; i >= 0; i--){
-	  	rightNavButtons.push( createNavButton(params[i]) );
+	  	navButtons.push( createNavButton(params[i]) );
 	};
-	return rightNavButtons;
+	return navButtons;
 	*/
 	
 	var view = Ti.UI.createView({ width: Ti.UI.SIZE, layout: 'horizontal' });
