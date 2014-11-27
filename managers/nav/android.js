@@ -30,9 +30,13 @@ function updateActionBar(actionBar) {
 		actionBar.setDisplayShowTitleEnabled(true);
 	}
 	
+	actionBar.subtitle = nav.subtitle || null;
+
 	if (nav.titleImage) {
 		actionBar.icon  = nav.titleImage;
 		actionBar.setDisplayShowHomeEnabled(true);
+	} else {
+		actionBar.icon = 'appicon.png';
 	}
 	
 	nav.backgroundImage && (actionBar.backgroundImage = nav.backgroundImage);

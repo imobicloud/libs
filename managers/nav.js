@@ -12,6 +12,7 @@ nav = {
  	title: '',
  	titleImage: 'url',
  	titleControl: Ti.UI.View,	// iOS only
+ 	subtitle: '',				// Android only
  	
  	leftNavButtons: [
 		{
