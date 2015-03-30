@@ -25,18 +25,17 @@ function createMenuItems(e) {
 }
 
 function updateActionBar(actionBar) {
-	if (nav.title) {
+	if (nav.title != null) {
 		actionBar.title = nav.title;
 		actionBar.setDisplayShowTitleEnabled(true);
 	}
 	
 	actionBar.subtitle = nav.subtitle || null;
-
+	actionBar.icon = 'appicon.png';
+	
 	if (nav.titleImage) {
 		actionBar.icon  = nav.titleImage;
 		actionBar.setDisplayShowHomeEnabled(true);
-	} else {
-		actionBar.icon = 'appicon.png';
 	}
 	
 	nav.backgroundImage && (actionBar.backgroundImage = nav.backgroundImage);
