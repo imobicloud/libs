@@ -178,19 +178,29 @@ function TabbarManager() {
 		Ti.API.log('Tabbar Manager: Tab ' + tabIndex + ' focussed! ');
 	}
 	
+	function checkReady(callback) {
+	  	if (container) {
+	  		callback();
+	  	}
+	}
+	
 	function exit() {
-		var children = container.children;
-		for (var i = UICaches.length - 1; i >= 0; i--) {
-			UICaches[i].reset();
-			container.remove(children[i]);
-		};
-		
-		activeTab = null;
-		container = null;
-		events = null;
-		UICaches = null;
-		
-		Ti.API.log('Tabbar Manager: Exit!');
+		checkReady(function(){
+			
+			var children = container.children;
+			for (var i = UICaches.length - 1; i >= 0; i--) {
+				UICaches[i].reset();
+				container.remove(children[i]);
+			};
+			
+			activeTab = null;
+			container = null;
+			events = null;
+			UICaches = null;
+			
+			Ti.API.log('Tabbar Manager: Exit!');
+			
+		});
 	};
 	
 	function on(type, callback) {
