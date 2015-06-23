@@ -25,6 +25,19 @@ function WindowManager() {
 		
 		var win = params.controller.getView();
 		
+		/*
+		 NOTES:
+		 - To use managers with widget: nl.fokkezb.drawer
+		   we have to export a custom getView funtion
+                exports.getView = function() {
+                    return $.drawer.window;
+                };
+         - For widgets that return a window
+                exports.getView = function() {
+                    return $.widgetName.windowId;
+                };
+		 * */
+		
 		win.addEventListener('open', windowOpened);
 		
 		// cleanup cache, in case of window is closed not by Window Manager
