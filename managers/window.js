@@ -27,15 +27,22 @@ function WindowManager() {
 		
 		/*
 		 NOTES:
-		 - To use managers with widget: nl.fokkezb.drawer
+		 
+		 - To use managers with widget: nl.fokkezb.drawer / NappDrawer
+		   
+		   add hasDrawer: true
+		   <Widget id="drawer" hasDrawer="true" src="nl.fokkezb.drawer"> ... </Widget>
+		   
 		   we have to export a custom getView funtion
                 exports.getView = function() {
                     return $.drawer.window;
                 };
+                
          - For widgets that return a window
                 exports.getView = function() {
                     return $.widgetName.windowId;
                 };
+                
 		 * */
 		
 		win.addEventListener('open', windowOpened);
@@ -44,7 +51,7 @@ function WindowManager() {
 		win.addEventListener('close', windowClosed);
 					
 		// make window visible
-		if (OS_IOS && win.apiName != 'Ti.UI.TabGroup') {
+		if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasDrawer != 'true') {
 			if (params.isReset !== false) {
 				createNavigationWindow(params, win);
 			} else {
