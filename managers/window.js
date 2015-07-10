@@ -30,10 +30,14 @@ function WindowManager() {
 		 
 		 - To use managers with widget: nl.fokkezb.drawer / NappDrawer
 		   
-		   add hasDrawer: true
-		   <Widget id="drawer" hasDrawer="true" src="nl.fokkezb.drawer"> ... </Widget>
+		   + hide nav bar
+		   		if (OS_IOS) {
+					$.drawer.window.navBarHidden = true;
+				} else {
+					$.drawer.window.title = 'Home';
+				}
 		   
-		   we have to export a custom getView funtion
+		   + export a custom getView funtion
                 exports.getView = function() {
                     return $.drawer.window;
                 };
@@ -49,21 +53,21 @@ function WindowManager() {
 		
 		// cleanup cache, in case of window is closed not by Window Manager
 		win.addEventListener('close', windowClosed);
-					
+		
 		// make window visible
-		if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasDrawer != 'true') {
+		if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasNavigationWindow != 'false') {
 			if (params.isReset !== false) {
 				createNavigationWindow(params, win);
 			} else {
 				var navigationWindow = getNavigationWindow();
 				if (navigationWindow) {
-					navigationWindow.openWindow(win, { animated: params.animated !== false });
+					navigationWindow.openWindow(win, params.openAnimation);
 				} else {
 					createNavigationWindow(params, win);
 				}
 			}
 		} else {
-			win.open({ animated: params.animated !== false });
+			win.open(params.openAnimation);
 			
 			// handle back event
 			OS_ANDROID && win.addEventListener('androidback', androidback);
@@ -78,16 +82,16 @@ function WindowManager() {
 			
 			win.removeEventListener('close', windowClosed);
 			
-			if (OS_IOS && win.apiName != 'Ti.UI.TabGroup') {
+			if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasNavigationWindow != 'false') {
 				if (params.navigationWindow) {
-					params.navigationWindow.close({ animated: params.animated !== false });
+					params.navigationWindow.close(params.closeAnimation);
 				} else {
 					var navigationWindow = getNavigationWindow();
-					navigationWindow.closeWindow(win, { animated: params.animated !== false });
+					navigationWindow.closeWindow(win, params.closeAnimation);
 				}
 			} else {
 				// Caution: if win is TabGroup, make sure exitOnClose is false, or it will cause error on Android
-				win.close({ animated: params.animated !== false });
+				win.close(params.closeAnimation);
 			}
 		}
 		
@@ -110,7 +114,7 @@ function WindowManager() {
 	function createNavigationWindow(params, win) {
 	  	var navigationWindow = Ti.UI.iOS.createNavigationWindow({ window: win });
 		params.navigationWindow = navigationWindow;
-		navigationWindow.open({ animated: params.animated !== false });
+		navigationWindow.open(params.openAnimation);
 	}
 	
 	function getNavigationWindow() {
