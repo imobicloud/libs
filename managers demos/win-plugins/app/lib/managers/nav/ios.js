@@ -1,62 +1,9 @@
-var Alloy = require('alloy'),
-	isIOS7 = ( OS_IOS && parseInt( Ti.Platform.version.split(".")[0], 10 ) >= 7 ) ? true : false;
-	
-/*
-var nav = controller.nav;
-nav = {
- 	title: '',
- 	titleImage: 'url',
- 	titleControl: Ti.UI.View,	// iOS only
- 	
- 	leftNavButton: Ti.UI.View, // iOS only
- 	leftNavButton: [
-		{
-			title: 'Edit',
-			icon: '/images/tabs/settings.png',
-			showAsAction: OS_IOS ? null : Ti.Android.SHOW_AS_ACTION_ALWAYS,
-			callback: editClicked
-		}
-	],
- 	rightNavButton: [
-		{
-			title: 'Edit',
-			icon: '/images/tabs/settings.png',
-			showAsAction: OS_IOS ? null : Ti.Android.SHOW_AS_ACTION_ALWAYS,
-			callback: editClicked
-		}
-	],
- 	
- 	backAction: function(){},
- 	homeAction: function(){},	// Android only, action when click on logo
- 	backgroundImage: 'url' 		// Android only, background for action bar
-}
-
-icon size: ios: 44, android 32
-* */
-
-exports.load = function(params, controller, win, type) {
-	load(params, win, controller.nav);
-};
-
-exports.update = function(nav, isTabgroup) {
-	var params,
-		win;
-		
-	if (isTabgroup !== true) {
-		params = Alloy.Globals.WinManager.getCache(-1);
-		win = params.controller.getView();
-	} else {
-		var tabgroup = Alloy.Globals.Tabgroup;
-		params = tabgroup.getCache(tabgroup.getActiveTab(), -1);
-		win = params.controller.getView();
-	}
-	
-	params.controller.nav = nav;
-	load(params, win, nav);
-};
-
-function load(params, win, nav) {
+exports.load = function load(win, nav) {
   	if (nav.titleControl) {
+  		if ( parseInt(Ti.Platform.version.split(".")[0], 10) > 6 ) {
+  			nav.titleControl.borderColor = nav.titleControl.barColor; 
+  		}
+  		
 		win.titleControl = nav.titleControl;
 	} else if (nav.titleImage) {
 		win.titleImage = nav.titleImage;
@@ -64,43 +11,57 @@ function load(params, win, nav) {
 		win.title = nav.title;
 	}
 	
-	var leftNavButton = nav.leftNavButton;
-	if (leftNavButton != null) {
-		if (leftNavButton) {
-			if (leftNavButton.length == 1) {
-				win.leftNavButton = createNavButton(leftNavButton[0]);
-			} else {
-				win.leftNavButton = createNavButtons(leftNavButton);
-			}
+	var leftNavButtons = nav.leftNavButtons;
+	if (leftNavButtons != null) {
+		if (leftNavButtons.length == 1) {
+			win.leftNavButton  = createNavButton(leftNavButtons[0]);
 		} else {
-			win.leftNavButton = Ti.UI.createView();
+			// win.leftNavButtons = createNavButtons(leftNavButtons);  //TODO: click event does not fire with leftNavButtons
+			   win.leftNavButton  = createNavButtons(leftNavButtons);
 		}
-	} else if (params.isReset == false) {
-		// use default Back button
-		win.backButtonTitle = 'Back';
 	}	
 		
-	var rightNavButton = nav.rightNavButton;
-	if (rightNavButton) {
-		if (rightNavButton.length == 1) {
-			win.rightNavButton = createNavButton(rightNavButton[0]);
+	var rightNavButtons = nav.rightNavButtons;
+	if (rightNavButtons) {
+		if (rightNavButtons.length == 1) {
+			win.rightNavButton  = createNavButton(rightNavButtons[0]);
 		} else {
-			win.rightNavButton = createNavButtons(rightNavButton);
+			// win.rightNavButtons = createNavButtons(rightNavButtons); //TODO: click event does not fire with rightNavButtons
+			   win.rightNavButton  = createNavButtons(rightNavButtons);
 		}
 	}
 };
 
 function createNavButtons(params) {
+	//TODO: click event does not fire with rightNavButtons
+	/*
+	var navButtons = [];
+  	for(var i = params.length - 1; i >= 0; i--){
+	  	navButtons.push( createNavButton(params[i]) );
+	};
+	return navButtons;
+	*/
+	
 	var view = Ti.UI.createView({ width: Ti.UI.SIZE, layout: 'horizontal' });
   	for(var i=0,ii=params.length; i<ii; i++){
-	  	view.add( createNavButton(params[i]) );
+  		var button = createNavButton(params[i]);
+	  	view.add(button);
 	};
 	return view;
 }
 
 function createNavButton(params) {
 	if (params.callback) {
-		var button = Ti.UI.createButton({ /*title: params.title,*/ image: params.icon, backgroundImage: 'NONE' });
+		var button = Ti.UI.createButton({ backgroundImage: 'NONE' });
+		if (params.icon) {
+			button.image = params.icon;
+		} 
+		if (params.title) {
+			button.title = params.title;
+		}
+		if (params.width) {
+			button.width = params.width;
+		};
 		button.addEventListener('click', params.callback);
 		return button;
 	} else {

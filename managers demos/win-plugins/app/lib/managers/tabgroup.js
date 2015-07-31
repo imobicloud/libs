@@ -1,23 +1,17 @@
-var Alloy = require('alloy');
+// var Alloy = require('alloy');
 
-function TabGroupManager(args) {
-	var UICaches = [], 
-		tabgroup = args.tabgroup, 
-		onFocus  = args.onFocus  || emptyFunction,
-		onChange = args.onChange || emptyFunction,
-		activeTab = args.defaultTab || 0,
-		updateTabsAfterFocus = true;
+function TabGroupManager() {
+	var activeTab,
+		events = {},
+		// isFirstLoad = true,
+		tabgroup,
+		UICaches = [];
 	
-	init(args.tabs);
-	
-	args = null;
-
 	// PRIVATE FUNCTIONS ========================================================
 
 	/*
 	 args = {
 		 tabgroup: Ti.UI.TabGroup
-		 
 		 tabs: [{
 			 icon: '',
 			 title: '',
@@ -25,50 +19,51 @@ function TabGroupManager(args) {
 			 url: '',
 			 data: null
 		 }],
-	
-		 defaultTab: 0,
-	
-		 onChange: function(status, params, win){
-			 status =
-			 - 0: start load
-			 - 1: loading
-			 - 2: load finish
-			 - 3: ui remove
-			 
-			 // return false to stop default behavior
-		 },
-		 
-		 onFocus: function(currentIndex, previousIndex, tabgroup){}
+		 defaultTab: 0
 	 }
 	 * */
-	function init(arrayTab) {
+	function init(args) {
+		tabgroup = args.tabgroup;
+		activeTab = args.defaultTab || 0;
+		
+		var arrayTab = args.tabs;
+		
 		// render tabs
 
 		var tabs = [], 
-			oUIManager = require('managers/ui');
+			UIManager = require('managers/ui');
 
 		for (var i = 0, ii = arrayTab.length; i < ii; i++) {
-			var UIManager = new oUIManager(UIChange);
-			UICaches.push(UIManager);
+			var tab = arrayTab[i],
+				UICache = new UIManager();
+				
+			UICache
+				.on('ui:show', winLoaded)
+				.on('ui:hide', winDestroy);
+					
+			UICache.load({
+				tabIndex: i,
+				url: tab.url,
+				data: tab.data,
+				_isRootWindow: true
+			});	
+			
+			UICaches.push(UICache);
 
 			// render tab button
-			
-			var tab = arrayTab[i];
 			
 			tabs.push(Ti.UI.createTab({
 				icon: tab.icon,
 				title: tab.title,
-				window: UIManager.set({
-					tabIndex: i,
-					url: tab.url,
-					data: tab.data,
-					isRoot: true
-				})
+				window: UICache.get(0).controller.getView()
 			}));
 		};
 
 		tabgroup.setTabs(tabs);
 		tabgroup.addEventListener('focus', tabGroupFocus);
+		
+		// handle back event
+		OS_ANDROID && tabgroup.addEventListener('androidback', androidback);
 		
 		(activeTab != 0) && tabgroup.setActiveTab(activeTab);
 		
@@ -77,46 +72,27 @@ function TabGroupManager(args) {
 		Ti.API.log('Tabgroup Manager: Initialize!');
 	};
 	
-	function UIChange(status, params, win) {
-	  	if (onChange(status, params, win) === false) { return false; }
-	  	
-	  	var oSwitch = {
-			0: winBeforeLoad,
-			1: winLoaded,
-			2: winDestroy
-		};
-		return oSwitch[status](params, win);
+	function winLoaded(params, e) {
+		fireEvent('window:show', params);
 	}
 	
-	function winBeforeLoad(params) {
+	function winDestroy(params, e) {
+		fireEvent('window:hide', params);
 		
-	}
-	
-	function winLoaded(params, win) {
-		
-	}
-	
-	function winDestroy(params, win) {
 		// do not remove root window of the tab
-		if (params.isRoot) {
+		if (params._isRootWindow) {
 			return;
 		}
 		
-		var controller = params.controller;
-		
-		if (OS_IOS) {
-			if (params.isReset === false) {
-				win.removeEventListener('close', windowClosed);
-			}
+		if (params._alreadyClosed !== true) {
+			var win = params.controller.getView();
+			win.removeEventListener('close', windowClosed);
 			
-			// remove window from tab
-			if (params.isOpened !== false) {
+			if (OS_IOS) {
 				tabgroup.tabs[params.tabIndex].close(win);
+			} else {
+				win.close();
 			}
-			
-			params.isOpened = false;
-		} else {
-			win.close();
 		}
 	}
 	
@@ -131,41 +107,57 @@ function TabGroupManager(args) {
 	function load(params) {
 		Ti.API.log('Tabgroup Manager: load Tab ' + params.tabIndex + ' - Page ' + params.url + ': ' + JSON.stringify(params.data));
 
-		if (params.tabIndex != activeTab) {
-			updateTabsAfterFocus = false;
-			
-			// cleanup previous tab, for tab's child only
-			var prev = getCache(activeTab, -1);
-			prev.controller.cleanup();
-			
-			// focus tab
-			tabgroup.setActiveTab(params.tabIndex);
-			activeTab = params.tabIndex;
+		var tabIndex = params.tabIndex;
+		
+		// focus tab
+		if (tabIndex != activeTab) {
+			tabgroup.setActiveTab(tabIndex);
+			activeTab = tabIndex;
 		}
 
-		var win = UICaches[params.tabIndex].set(params);
-		
-		// make window visible, for tab's child only
-		tabgroup.tabs[params.tabIndex].open(win);
-		
-		// handle events, for tab's child only
-		if (OS_IOS) {
-			if (params.isReset === false) {
-				// cleanup cache, in case of window is closed by clicked on the default Back button or Tab button
-				win.addEventListener('close', windowClosed);
-			}
+		if (params.url) {
+			// tabgroup window does not allow remove root window
+			params.isReset = false;
 			
-			params.isOpened = true;
-		} else {
-			win.addEventListener('androidback', androidback);
+			UICaches[tabIndex].load(params);
+			
+			var win = params.controller.getView();
+			
+			win.addEventListener('open', windowOpened);
+			
+			// cleanup cache, in case of window is closed not by Tabgroup Manager
+			win.addEventListener('close', windowClosed);
+			
+			// make window visible
+			tabgroup.tabs[tabIndex].open(win);
+			
+			// if (OS_ANDROID) {
+				// win.addEventListener('androidback', androidback);
+			// }
+		} else if (params.isReset !== false) {
+			var len = getCache(activeTab).length;
+			if (len > 1) {
+				loadPrevious(params.data, len - 1);
+			} else {
+				getCache(activeTab, -1).controller.reload(params.data);
+			}
 		}
 		
-		Ti.API.log('Tabgroup Manager: Tab ' + params.tabIndex + ' - Cached ' + getCache(params.tabIndex).length);
+		Ti.API.log('Tabgroup Manager: Tab ' + tabIndex + ' - Cached ' + getCache(tabIndex).length);
+	}
+	
+	function windowOpened(e) {
+	  	var cache = getCache(activeTab, -1),
+			init  = cache.controller.init;
+		cache._alreadyInitialize = true;	
+	  	init && init(cache);
 	}
 	
 	function windowClosed(e) {
-	  	getCache(activeTab, -1).isOpened = false;
-	  	loadPrevious();
+		var cache = getCache(activeTab, -1),
+	  		iosback = cache.controller.iosback;
+	  	cache._alreadyClosed = true;
+	  	loadPrevious(OS_IOS && iosback ? iosback() : null);
 	}
 
 	/*
@@ -173,13 +165,14 @@ function TabGroupManager(args) {
 	 - count: number of revious pages will be removed
 	 - data: new data for current page, the reload function of current tab will be called
 	 * */
-	function loadPrevious(data, count) {
-		UICaches[activeTab].setPrevious(data, count);
+	function loadPrevious(data, count, isReload) {
+		UICaches[activeTab].loadPrevious(data, count, isReload);
 		
 		Ti.API.log('Tabgroup Manager: Tab ' + activeTab + ' - Cached ' + getCache(activeTab).length);
 	};
 
 	function getCache(tabIndex, cacheIndex) {
+		(tabIndex === -1) && (tabIndex = activeTab);
 		return UICaches[tabIndex].get(cacheIndex);
 	};
 
@@ -193,44 +186,46 @@ function TabGroupManager(args) {
 			UICaches[i].reset();
 			// tabgroup.removeTab(tabs[i]);
 		};
-
 		// tabs = null;
-		tabgroup = null;
+		
 		activeTab = null;
-		UICaches.length = 0;
+		events = null;
+		tabgroup = null;
+		UICaches = null;
+		
+		// force exit app on Android
+		if (OS_ANDROID) {
+			var activity = Ti.Android.currentActivity;
+			activity && activity.finish();
+		}
 
 		Ti.API.log('Tabgroup Manager: Exit!');
 	};
 	
 	function tabGroupFocus(e) {
-		if (updateTabsAfterFocus === false) {
-			updateTabsAfterFocus = true;
-			return;
-		}
-		
-		// this is required when tab has textfield, Android only
-		if (OS_ANDROID && e.tab == null) { return; }
+		if (OS_ANDROID && e.tab == null) { return; }                     // this is required when tab has text-field
+		// if (OS_ANDROID && isFirstLoad) { isFirstLoad = false; return; }  // this event also fires when the activity enters the foreground
 		
 		var tabIndex = e.index,
 			previousIndex = e.previousIndex;
-
-		// first load
-		if (previousIndex === -1) { return; }
-
+		
 		activeTab = tabIndex;
 		
-		// fire focus event
-		onFocus(tabIndex, previousIndex, tabgroup);
-
-		// cleanup previous tab
-		if (previousIndex != tabIndex) {
+		if (previousIndex != -1) {
+			// cleanup previous tab
 			var prev = getCache(previousIndex, -1);
 			prev.controller.cleanup();
 		}
-	
-		// reload current tab
+		
 		var current = getCache(tabIndex, -1);
-		current.controller.reload();
+		if (current._alreadyInitialize) {
+			// reload current tab
+			current.controller.reload();
+		} else {
+			current._alreadyInitialize = true;
+			var init = current.controller.init;
+			init && init(current);
+		}
 		
 		Ti.API.log('Tabgroup Manager: Tab ' + tabIndex + ' focussed! ');
 	}
@@ -243,18 +238,42 @@ function TabGroupManager(args) {
 		
 	  	if (getCache(activeTab).length > 1) {
 	  		loadPrevious();
-	  		return false;
+	  	} else {
+	  		fireEvent('tabgroup:exit');
 	  	}
 	}
 	
-	function emptyFunction() {}
+	function on(type, callback) {
+	  	if (events[type]) {
+	  		events[type].push(callback);
+	  	} else {
+	  		events[type] = [callback];
+	  	}
+	  	return this;
+	}
+	
+	function fireEvent(type, data) {
+	  	var callbacks = events[type];
+	  	if (callbacks) {
+	  		for(var i=0,ii=callbacks.length; i<ii; i++){
+				callbacks[i](data, { type: type });
+			};
+	  	}
+	}
+	
+	function getView() {
+	  	return tabgroup;
+	}
 	
 	// PUBLIC FUNCTIONS ========================================================
 
 	return {
+		init: init,
+		on: on,
 		load: load,
 		loadPrevious: loadPrevious,
 		getCache: getCache,
+		getView: getView,
 		getActiveTab: getActiveTab,
 		exit: exit
 	};

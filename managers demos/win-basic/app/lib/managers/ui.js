@@ -45,7 +45,7 @@ function UIManager() {
 	function destroyObject(params) {
 		var controller = params.controller;
 		
-		params._alreadyCleanup !== true && controller.cleanup();
+		params._alreadyCleanup !== true && controller.cleanup(true);
 		controller.unload();
 		
 		fireEvent('ui:hide', params);
@@ -75,8 +75,8 @@ function UIManager() {
 		
 		// cleanup current
 		var current = cache[start];
-		current.controller.cleanup();
 		current._alreadyCleanup = true;
+		current.controller.cleanup();
 		
 		// reload previous
 		if (isReload !== false) {

@@ -1,6 +1,6 @@
 exports.load = function load(win, nav) {
   	if (nav.titleControl) {
-  		if ( Alloy.Globals.isIOS7 ) {
+  		if ( parseInt(Ti.Platform.version.split(".")[0], 10) > 6 ) {
   			nav.titleControl.borderColor = nav.titleControl.barColor; 
   		}
   		
@@ -16,7 +16,8 @@ exports.load = function load(win, nav) {
 		if (leftNavButtons.length == 1) {
 			win.leftNavButton  = createNavButton(leftNavButtons[0]);
 		} else {
-			win.leftNavButtons = createNavButtons(leftNavButtons);
+			// win.leftNavButtons = createNavButtons(leftNavButtons);  //TODO: click event does not fire with leftNavButtons
+			   win.leftNavButton  = createNavButtons(leftNavButtons);
 		}
 	}	
 		
@@ -34,11 +35,11 @@ exports.load = function load(win, nav) {
 function createNavButtons(params) {
 	//TODO: click event does not fire with rightNavButtons
 	/*
-	var rightNavButtons = [];
+	var navButtons = [];
   	for(var i = params.length - 1; i >= 0; i--){
-	  	rightNavButtons.push( createNavButton(params[i]) );
+	  	navButtons.push( createNavButton(params[i]) );
 	};
-	return rightNavButtons;
+	return navButtons;
 	*/
 	
 	var view = Ti.UI.createView({ width: Ti.UI.SIZE, layout: 'horizontal' });
@@ -54,14 +55,13 @@ function createNavButton(params) {
 		var button = Ti.UI.createButton({ backgroundImage: 'NONE' });
 		if (params.icon) {
 			button.image = params.icon;
-			if (params.title == null) {
-				button.height = 34;
-				button.width = 40;
-			};
 		} 
 		if (params.title) {
 			button.title = params.title;
 		}
+		if (params.width) {
+			button.width = params.width;
+		};
 		button.addEventListener('click', params.callback);
 		return button;
 	} else {

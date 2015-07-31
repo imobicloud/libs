@@ -1,13 +1,17 @@
 var Alloy = require('alloy');
 
-function Plugins(type, config) {
-	var _return = {},
-		navigation;
+// hasAI: true, hasNavBar, hasWebview
+
+function Plugins(config) {
+	var _return = {
+		windowShow: windowShow,
+		windowHide: windowHide
+	};
 	
 	config = _.extend({
 		ai: true,
-		keyboard: true,
-		navigation: false
+		keyboard: true, // if win.hasWebview == "true", this will be ignore, https://jira.appcelerator.org/browse/TC-1056
+		toast: false
 	}, config);
 	
 	init();
@@ -15,156 +19,127 @@ function Plugins(type, config) {
 	// PRIVATE FUNCTIONS ========================================================
 	
 	function init() {
-		if (type == 'window') {
-			_return.windowChanged = windowChanged;
-		} else if (type == 'tabgroup') {
-			_return.tabGroupChanged  = tabGroupChanged;
-			_return.tabGroupFocussed = tabGroupFocussed;
-		}
-		
 		config.ai 		&& (_return.toggleAI = toggleAI); 
 		config.keyboard && (_return.hideKeyboard = hideKeyboard); 
-		
-		if (config.navigation) {
+		config.toast    && (_return.showToast = showToast);
+	}
+	
+	function windowShow(params, e) {
+		var win = params.controller.getView();
+		if (win.hasNavBar == 'false') {
 			if (OS_IOS) {
-				navigation = require('managers/nav/ios'); // use NavigationWindow for iOS
+				win.navBarHidden = true;
 			} else {
-				if (Ti.Platform.Android.API_LEVEL >= 14) {
-					navigation = require('managers/nav/android_new'); // use ActionBar for android 4.0 and up
-				} else {
-					navigation = require('managers/nav/android_old'); // custom nav for android below 4
-				}
-			}
-		
-			_return.updateNav = navigation.update;
-		}
-	}
-	
-	/* =============================================================================
-	   start Window plugins
-	   ========================================================================== */
-	
-	function windowChanged(status, params, win) {
-		var oSwitch = {
-			0: winBeforeLoad,
-			1: winLoaded,
-			2: winDestroy
-		};
-		return oSwitch[status](params, win);
-	}
-	
-	function winBeforeLoad(params) {
-		
-	}
-	
-	function winLoaded(params, win) {
-		if (config.navigation) {
-			var controller = params.controller;
-			if (controller.nav) {
-				navigation.load(params, controller, win, 'window');
+				win.addEventListener('open', function(e) { e.source.activity.actionBar.hide(); });
 			}
 		}
 		
-		if (win.apiName != 'Ti.UI.TabGroup') {
-			config.ai 		&& loadAI(params, win);
-			config.keyboard && loadKeyboard(params, win);
-		}
+		config.ai 		&& loadAI(params, win);
+		config.keyboard && loadKeyboard(params, win);
+		config.toast    && loadToast(params, win);
 	}
 	
-	function winDestroy(params, win) {
-		if (config.ai && params.ai) {
-			params.ai.unload();
-	  		params.ai = null;
+	function windowHide(params, e) {
+		if (config.ai && params._ai) {
+			params._ai.unload();
+	  		params._ai = null;
 		}
-		config.keyboard && (params.hiddenTextfield = null);
+		config.keyboard && (params._txt = null);
 	}
-	
-	/* =============================================================================
-	   end Window plugins
-	   ========================================================================== */
-	
-	
-	
-	/* =============================================================================
-	   start Tabgroup plugins
-	   ========================================================================== */
-	
-	function tabGroupChanged(status, params, win) {
-		if (status == 1) {
-			var controller = params.controller;
-			if (config.navigation && controller.nav) {
-				if (OS_IOS || params._isRootWindow !== true) {
-					navigation.load(params, controller, win, 'tabgroupWindow');
-				}
-			}
-			
-			config.ai 		&& loadAI(params, win);
-			config.keyboard && loadKeyboard(params, win);
-		}
-	};
-	
-	function tabGroupFocussed(currentIndex, previousIndex, tabgroup) {
-		previousIndex != -1 && toggleAI(true); //TODO: remove this condition
-		
-		// update action bar's buttons
-		if (config.navigation && OS_ANDROID) {
-			var tabgroupController = Alloy.Globals.WinManager.getCache(-1).controller,
-				currentTab = Alloy.Globals.Tabgroup.getCache(currentIndex, -1).controller;
-			tabgroupController.nav = currentTab.nav;
-			tabgroup.activity.invalidateOptionsMenu();
-		}
-	};
-	
-	/* =============================================================================
-	   end Tabgroup plugins
-	   ========================================================================== */
 	
 	/* =============================================================================
    start Utilities
    ========================================================================== */
 	  
 	function loadAI(params, win) {
-	  	var ai = Alloy.createController('elements/ai', { visible: params._isRootWindow !== true }); // root window of tab: ai not show on load
-	  	params.ai = ai;
-		win.add( ai.getView() );
+		var ai = Alloy.createWidget('com.imobicloud.ai', { visible: win.hasAI != 'false' });
+	  	params._ai = ai;
+	  	win.add( ai.getView() );
 	}
 	
 	function toggleAI(visible, message, timeout) {
-		// show/hide the AI of current window only
-		var current = Alloy.Globals.WinManager.getCache(-1);
-		if (current == null || current.ai == null) {
-			var tabgroup = Alloy.Globals.Tabgroup;
-			current = tabgroup.getCache(tabgroup.getActiveTab(), -1);
-		}
-
 		if (visible) {
-			current.ai.toggle(true, message, timeout);
+			var current = Alloy.Globals.WinManager.getCache(-1);
+		  	if (current == null) {
+				current = Alloy.Globals.Tabgroup.getCache(-1, -1);
+		  	}
+			
+			if (current && current._ai) {
+				current._ai.toggle(true, message, timeout);
+			}
 		} else {
-			current.ai.toggle(false);
+			var cache = Alloy.Globals.WinManager.getCache();
+		  	if (cache.length === 0) {
+				cache = Alloy.Globals.Tabgroup.getCache(-1);
+		  	}
+		  	
+		  	for(var i=0,ii=cache.length; i<ii; i++){
+			  	var current = cache[i];
+			  	if (current && current._ai) {
+					current._ai.toggle(false);
+				}
+			};
 		}
 	};
+	
+	//
 	
 	function loadKeyboard(params, win) {
 	  	// attach hidden textfield for hiding keyboard
 		
-		var hiddenTextfield = Ti.UI.createTextField({ visible: false });
-		params.hiddenTextfield = hiddenTextfield;
-		win.add(hiddenTextfield);
+		var txt = Ti.UI.createTextField({ visible: false });
+		// OS_ANDROID && (txt.softKeyboardOnFocus = Ti.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS);
+		params._txt = txt;
+		win.add(txt);
 		
-		// hide keyboard on tap, for iOS only, Android should use back button
+		// hide keyboard on tap
 		
-		OS_IOS && win.addEventListener('singletap', function() {
-			if (Ti.App.keyboardVisible) {
-				hideKeyboard();
-			}
-		});
+		if (win.hasWebview != 'true') {
+			win.addEventListener('singletap', function(e) {
+				if ( ['Ti.UI.TextField', 'Ti.UI.TextArea', 'Ti.UI.SearchBar', 'Ti.UI.Android.SearchView'].indexOf( e.source.apiName ) == -1 ) {
+					hideKeyboard();
+				}
+			});
+		}
 	}
 	  
 	function hideKeyboard() {
-	  	var current = Alloy.Globals.WinManager.getCache(-1),
-			txt = current.hiddenTextfield;
-	  	txt.focus();
-	  	txt.blur();
+		//TODO: try this Ti.UI.Android.hideSoftKeyboard();
+		
+		if (OS_ANDROID || Ti.App.keyboardVisible) { // Ti.App.keyboardVisible for iOS only
+			var current = Alloy.Globals.WinManager.getCache(-1);
+		  	if (current == null) {
+				current = Alloy.Globals.Tabgroup.getCache(-1, -1);
+		  	}
+			
+			if (current && current._txt) {
+				var txt = current._txt;
+			  	txt.focus();
+			  	txt.blur();
+			}
+		}
+	}
+	
+	//
+	
+	function loadToast(params, win) {
+	  	var toast = Alloy.createWidget('com.imobicloud.toast', { hasNavBar: win.hasNavBar });
+	  	params._toast = toast;
+	  	win.add( toast.getView() );
+	}
+	
+	function showToast(args) {
+	    var current = Alloy.Globals.WinManager.getCache(-1);
+	  	if (current == null) {
+			current = Alloy.Globals.Tabgroup.getCache(-1, -1);
+	  	}
+		
+		if (current && current._toast) {
+			current._toast.show(args);
+		} else {
+			if (!args.buttonNames) { args.buttonNames = ['OK']; }
+		    Ti.UI.createAlertDialog(args).show();
+		}
 	}
 	
 	/* =============================================================================

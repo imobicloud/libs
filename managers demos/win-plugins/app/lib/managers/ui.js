@@ -1,34 +1,8 @@
 var Alloy = require('alloy');
 
-/*
- onChange = function(status, params, UI) {
- 	status: ui's status
- 	 - 0: before
- 	 - 1: ui created
- 	 - 2: ui destroy
- 	
- 	UI: ui object, if status is 0, UI is null
- 	
-	params = {
-		url: '',
-		data: {},
-		isReset: false,
-		controller: exports // if status is 0, controller is null
-	}
-
-	controller may have the following functions
-	 - init:    called when window loaded, after onChange(1) run
-	 - cleanup: called when window loose focus
-	 - reload:  called when window focus again
-	 - unload:  called when window closed
-	 - androidback: back event for android
-	 - iosback: back event for ios default Back button
- };
- * */
-function UIManager(onChange) {
-	var cache = [];
-	
-	(onChange == null) && (onChange = emptyFunction);
+function UIManager() {
+	var cache = [],
+		events = {};
 	
 	// PRIVATE FUNCTIONS ========================================================
 	
@@ -40,9 +14,7 @@ function UIManager(onChange) {
 	  - data: data for that object
 	  - isReset: remove previous object or not, default is true
 	 * */
-	function set(params) {
-		if (onChange(0, params) === false) { return; }
-		
+	function load(params) {
 		// cleanup previous
 		if (cache.length) {
 			var prev = cache[cache.length - 1];
@@ -52,6 +24,7 @@ function UIManager(onChange) {
 		
 		// load new
 		var controller = Alloy.createController(params.url, params.data);
+		delete params.data;
 		
 		// apply default functions
 		(controller.cleanup == null) && (controller.cleanup = emptyFunction);
@@ -60,28 +33,22 @@ function UIManager(onChange) {
 		
 		params.controller = controller;
 		
-		// remove previous
-		(params.isReset !== false) && reset();
-		
 		// cached new
 		cache.push(params);
 		
-		var view = controller.getView();
+		fireEvent('ui:show', params);
 		
-		onChange(1, params, view);
-		
-		controller.init && controller.init(params);  
-		
-		return view;
+		// remove previous
+		(params.isReset !== false) && remove(-2, 0);
 	};
 	
 	function destroyObject(params) {
 		var controller = params.controller;
 		
-		params._alreadyCleanup !== true && controller.cleanup();
+		params._alreadyCleanup !== true && controller.cleanup(true);
 		controller.unload();
 		
-		onChange(2, params, controller.getView());
+		fireEvent('ui:hide', params);
 	}
 	
 	/*
@@ -89,11 +56,11 @@ function UIManager(onChange) {
 	  - data: new data for current object
 	  - count: number of previous object will be removed
 	 * */
-	function setPrevious(data, count) {
+	function loadPrevious(data, count, isReload) {
 		var len = cache.length;
 		
 		if (len < 2) {
-			return;
+			return false;
 		}
 		
 		// if count == null or count == 0, set count = 1
@@ -106,13 +73,22 @@ function UIManager(onChange) {
 			end = 1;
 		}
 		
+		// cleanup current
+		var current = cache[start];
+		current._alreadyCleanup = true;
+		current.controller.cleanup();
+		
 		// reload previous
-		var prev = cache[end - 1];
-		prev.controller.reload(data);
-		prev._alreadyCleanup = false;
+		if (isReload !== false) {
+			var prev = cache[end - 1];
+			prev.controller.reload(data);
+			prev._alreadyCleanup = false;
+		}
 		
 		// destroy un-used object
 		remove(start, end);
+		
+		return true;
 	};
 	
 	/*
@@ -141,28 +117,47 @@ function UIManager(onChange) {
 			start = cache.length + start;
 		}
 		
-		for (var i = start; i >= end; i--){
+		for (var i = end; i <= start; i++){
 			destroyObject(cache[i]);
-		  	cache.splice(i, 1);
 		};
+		
+		cache.splice(end, start - end + 1);
 	}
 	
 	// remove all object
 	// same as remove(-1, 0);
 	function reset() {
-		for (var i = cache.length - 1; i >= 0; i--){
+		for (var i = 0, ii = cache.length; i < ii; i++){
 		  	destroyObject(cache[i]);
 		};
 		cache.length = 0;
 	}
 	
+	function on(type, callback) {
+	  	if (events[type]) {
+	  		events[type].push(callback);
+	  	} else {
+	  		events[type] = [callback];
+	  	}
+	  	return this;
+	}
+	
+	function fireEvent(type, data) {
+	  	var callbacks = events[type];
+	  	if (callbacks) {
+	  		for(var i=0,ii=callbacks.length; i<ii; i++){
+				callbacks[i](data, { type: type });
+			};
+	  	}
+	}
+	
 	// PUBLIC FUNCTIONS ========================================================
 
 	return {
+		on: on,
         get: get,
-        set: set,
-        setPrevious: setPrevious,
-        remove: remove,
+        load: load,
+        loadPrevious: loadPrevious,
         reset: reset
     };
 };
