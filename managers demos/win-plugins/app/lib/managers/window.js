@@ -55,27 +55,23 @@ function WindowManager() {
 		win.addEventListener('close', windowClosed);
 		
 		// make window visible
-		if (params.controller.doShow == null) {
-			if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasNavigationWindow != 'false') {
-				if (params.isReset !== false) {
-					createNavigationWindow(params, win);
-				} else {
-					var navigationWindow = getNavigationWindow();
-					if (navigationWindow) {
-						navigationWindow.openWindow(win, params.openAnimation);
-					} else {
-						createNavigationWindow(params, win);
-					}
-				}
+		if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasNavigationWindow != 'false') {
+			if (params.isReset !== false) {
+				createNavigationWindow(params, win);
 			} else {
-				win.open(params.openAnimation);
+				var navigationWindow = getNavigationWindow();
+				if (navigationWindow) {
+					navigationWindow.openWindow(win, params.openAnimation);
+				} else {
+					createNavigationWindow(params, win);
+				}
 			}
 		} else {
-			params.controller.doShow(params);
+			win.open(params.openAnimation);
+			
+			// handle back event
+			OS_ANDROID && win.addEventListener('androidback', androidback);
 		}
-		
-		// handle back event
-		OS_ANDROID && win.addEventListener('androidback', androidback);
 	}
 	
 	function winDestroy(params, e) {
@@ -86,20 +82,16 @@ function WindowManager() {
 			
 			win.removeEventListener('close', windowClosed);
 			
-			if (params.controller.doHide == null) {
-				if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasNavigationWindow != 'false') {
-					if (params.navigationWindow) {
-						params.navigationWindow.close(params.closeAnimation);
-					} else {
-						var navigationWindow = getNavigationWindow();
-						navigationWindow.closeWindow(win, params.closeAnimation);
-					}
+			if (OS_IOS && win.apiName != 'Ti.UI.TabGroup' && win.hasNavigationWindow != 'false') {
+				if (params.navigationWindow) {
+					params.navigationWindow.close(params.closeAnimation);
 				} else {
-					// Caution: if win is TabGroup, make sure exitOnClose is false, or it will cause error on Android
-					win.close(params.closeAnimation);
+					var navigationWindow = getNavigationWindow();
+					navigationWindow.closeWindow(win, params.closeAnimation);
 				}
 			} else {
-				params.controller.doHide(params);
+				// Caution: if win is TabGroup, make sure exitOnClose is false, or it will cause error on Android
+				win.close(params.closeAnimation);
 			}
 		}
 		

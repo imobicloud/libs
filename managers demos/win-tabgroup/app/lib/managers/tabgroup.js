@@ -52,11 +52,7 @@ function TabGroupManager() {
 
 			// render tab button
 			
-			tabs.push(Ti.UI.createTab({
-				icon: tab.icon,
-				title: tab.title,
-				window: UICache.get(0).controller.getView()
-			}));
+			tabs.push(Ti.UI.createTab( _.extend(tab, { window: UICache.get(0).controller.getView() }) ));
 		};
 
 		tabgroup.setTabs(tabs);
