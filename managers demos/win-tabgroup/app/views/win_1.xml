@@ -1,5 +1,13 @@
 <Alloy>
 	<Window title="Win 1" class="win">
+		
+		<!-- NAVBAR -->
+		<RightNavButton platform="ios">
+			<Button class="button-change-currency"/>
+		</RightNavButton>
+		
+		<!-- BODY -->
 		<Button onClick="openWin2">Open win 2</Button>
+		
 	</Window>
 </Alloy>

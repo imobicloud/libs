@@ -1,4 +1,1 @@
-
-".container" : {
-  
-}
+".button-change-currency[platform=ios]": { image: '/images/wallet/currency.png' }
