@@ -15,10 +15,10 @@ function loadTabgroup() {
 	var TabGroupManager = require('managers/tabgroup'),
 		Tabgroup = new TabGroupManager();
 		
-	Tabgroup
-		.on('tabgroup:focus', loadNav);
+	// Tabgroup
 		// .on('window:show', plugins.windowShow)
 		// .on('window:hide', plugins.windowHide);
+	OS_ANDROID && Tabgroup.on('tabgroup:focus', loadNav);
 	
 	Tabgroup.init({
 		tabgroup: $.tabgroup,
