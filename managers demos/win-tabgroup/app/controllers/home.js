@@ -1,6 +1,5 @@
 init();
 function init() {
-	// OS_ANDROID && (exports.nav = { title: 'Demo' });
 	loadTabgroup();
 };
 
@@ -16,7 +15,8 @@ function loadTabgroup() {
 	var TabGroupManager = require('managers/tabgroup'),
 		Tabgroup = new TabGroupManager();
 		
-	// Tabgroup
+	Tabgroup
+		.on('tabgroup:focus', loadNav);
 		// .on('window:show', plugins.windowShow)
 		// .on('window:hide', plugins.windowHide);
 	
@@ -58,4 +58,13 @@ function loadTabgroup() {
 	});	
 	
 	Alloy.Globals.Tabgroup = Tabgroup;
+}
+
+function loadNav(e) {
+	var controller = e.cache.controller;
+    require('managers/nav').load($.tabgroup, controller.nav || {
+    	title: controller.getView().title || 'Home',
+    	subtitle: '',
+    	rightNavButtons: []
+    });
 }

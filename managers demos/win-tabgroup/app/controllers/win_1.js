@@ -1,7 +1,15 @@
-// navigation
-exports.nav = {
-	title: 'Win 1'
-};
+init();
+function init() {
+  	if (OS_ANDROID) {
+  		exports.nav = {
+	        title: 'Wallet',
+	        rightNavButtons: [{
+				icon: '/images/wallet/currency.png',
+				callback: function() {}
+			}]
+	    };
+  	}
+}
 
 exports.init = function() {
 	// window will run when window is created
