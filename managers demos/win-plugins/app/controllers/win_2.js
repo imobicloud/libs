@@ -22,7 +22,7 @@ exports.init = function() {
 		// update Navigation
 		var nav = exports.nav;
 		nav.title = 'Updated Title';
-		Alloy.Globals.updateNav(nav, false);
+		loadNav(nav);
 	}, 3000);
 };
 
@@ -40,4 +40,9 @@ exports.unload = function() {
 
 function openWin1(e) {
   	Alloy.Globals.WinManager.loadPrevious();
+}
+
+function loadNav(nav) {
+	var controller = e.cache.controller;
+    require('managers/nav').load($.tabgroup, nav);
 }

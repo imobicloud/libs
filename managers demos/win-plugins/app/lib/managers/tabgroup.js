@@ -52,11 +52,7 @@ function TabGroupManager() {
 
 			// render tab button
 			
-			tabs.push(Ti.UI.createTab({
-				icon: tab.icon,
-				title: tab.title,
-				window: UICache.get(0).controller.getView()
-			}));
+			tabs.push(Ti.UI.createTab( _.extend(tab, { window: UICache.get(0).controller.getView() }) ));
 		};
 
 		tabgroup.setTabs(tabs);
@@ -108,6 +104,10 @@ function TabGroupManager() {
 		Ti.API.log('Tabgroup Manager: load Tab ' + params.tabIndex + ' - Page ' + params.url + ': ' + JSON.stringify(params.data));
 
 		var tabIndex = params.tabIndex;
+		
+		if (tabIndex == null) {
+			tabIndex = activeTab;
+		}
 		
 		// focus tab
 		if (tabIndex != activeTab) {
@@ -226,6 +226,8 @@ function TabGroupManager() {
 			var init = current.controller.init;
 			init && init(current);
 		}
+		
+		fireEvent('tabgroup:focus', { cache: current });
 		
 		Ti.API.log('Tabgroup Manager: Tab ' + tabIndex + ' focussed! ');
 	}
