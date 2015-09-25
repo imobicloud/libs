@@ -18,11 +18,11 @@ function init() {
 	
 	if ( 1 ) {
 		winManager.load({
-			url: 'main_window'
+			url: 'home'
 		});
 	} else {
 		winManager.load({
-			url: 'home'
+			url: 'login'
 		});
 	}
 }
