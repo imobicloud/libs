@@ -227,6 +227,8 @@ function TabGroupManager() {
 			init && init(current);
 		}
 		
+		fireEvent('tabgroup:focus', { cache: current });
+		
 		Ti.API.log('Tabgroup Manager: Tab ' + tabIndex + ' focussed! ');
 	}
 	
