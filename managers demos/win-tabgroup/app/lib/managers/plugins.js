@@ -1,6 +1,6 @@
 var Alloy = require('alloy');
 
-// hasAI: true, hasNavBar, hasWebview
+// hasAI: true, hasWebview
 
 function Plugins(config) {
 	var _return = {
@@ -26,14 +26,6 @@ function Plugins(config) {
 	
 	function windowShow(params, e) {
 		var win = params.controller.getView();
-		if (win.hasNavBar == 'false') {
-			if (OS_IOS) {
-				win.navBarHidden = true;
-			} else {
-				win.addEventListener('open', function(e) { e.source.activity.actionBar.hide(); });
-			}
-		}
-		
 		config.ai 		&& loadAI(params, win);
 		config.keyboard && loadKeyboard(params, win);
 		config.toast    && loadToast(params, win);
@@ -123,7 +115,7 @@ function Plugins(config) {
 	//
 	
 	function loadToast(params, win) {
-	  	var toast = Alloy.createWidget('com.imobicloud.toast', { hasNavBar: win.hasNavBar });
+	  	var toast = Alloy.createWidget('com.imobicloud.toast', { hasNavBar: !win.navBarHidden + '' });
 	  	params._toast = toast;
 	  	win.add( toast.getView() );
 	}

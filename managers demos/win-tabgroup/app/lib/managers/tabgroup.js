@@ -105,6 +105,10 @@ function TabGroupManager() {
 
 		var tabIndex = params.tabIndex;
 		
+		if (tabIndex == null) {
+			tabIndex = activeTab;
+		}
+		
 		// focus tab
 		if (tabIndex != activeTab) {
 			tabgroup.setActiveTab(tabIndex);
@@ -222,6 +226,8 @@ function TabGroupManager() {
 			var init = current.controller.init;
 			init && init(current);
 		}
+		
+		fireEvent('tabgroup:focus', { cache: current });
 		
 		Ti.API.log('Tabgroup Manager: Tab ' + tabIndex + ' focussed! ');
 	}
