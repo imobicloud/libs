@@ -71,7 +71,7 @@ function WindowManager() {
 				win.open(params.openAnimation);
 			}
 		} else {
-			params.controller.doShow(params);
+			params.controller.doShow(params, win);
 		}
 		
 		// handle back event
@@ -99,7 +99,7 @@ function WindowManager() {
 					win.close(params.closeAnimation);
 				}
 			} else {
-				params.controller.doHide(params);
+				params.controller.doHide(params, win);
 			}
 		}
 		
