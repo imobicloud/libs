@@ -1,5 +1,0 @@
-<Alloy>
-	<Window title="Win 2" class="win">
-		<Button onClick="openWin1">Back to win 1</Button>
-	</Window>
-</Alloy>

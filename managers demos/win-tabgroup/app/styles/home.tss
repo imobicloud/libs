@@ -1,6 +1,0 @@
-".tabgroup": { 
-	// shadowImage: '/images/tabgroup/shadowimage@2x.png',
-	// activeTabBackgroundImage: '/images/tabgroup/activetab@2x.png',
-	tabsBackgroundColor: '#4f79b3',
-	activeTabIconTint: '#fff'
-}
