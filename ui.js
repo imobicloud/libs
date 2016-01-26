@@ -1,21 +1,3 @@
-var _ = require('alloy/underscore')._;
-
-exports.Sports = [
-	{ id: 'basketball', 	name: 'Basketball' },
-	{ id: 'soccer', 		name: 'Soccer' },
-	{ id: 'volleyball', 	name: 'Volleyball' },
-	{ id: 'football', 		name: 'Football' },
-	{ id: 'tennis', 		name: 'Tennis' },
-	{ id: 'baseball', 		name: 'Baseball' },
-	{ id: 'hockey', 		name: 'Hockey' },
-	{ id: 'cricket', 		name: 'Cricket' },
-	{ id: 'frisbee', 		name: 'Frisbee' },
-	{ id: 'boxing', 		name: 'Boxing' },
-	{ id: 'mma', 			name: 'MMA' },
-	{ id: 'lacrosse', 		name: 'Lacrosse' },
-	{ id: 'hiking', 		name: 'Hiking' }
-];
-
 exports.openPhotoGallery = function(params) {
 	Titanium.Media.openPhotoGallery(_.extend({
 		autoHide: true,
@@ -107,5 +89,4 @@ exports.hideKeyboard = function(win) {
 	}
 };
 // */
-
 
