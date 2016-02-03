@@ -75,8 +75,7 @@ exports.showDatePicker = function(container, params) {
 	}
 };
 
-/*
-exports.hideKeyboard = function(win) {
+function hideKeyboard(win) {
 	if (OS_ANDROID) {
 		Ti.UI.Android.hideSoftKeyboard();
 	} else if (Ti.App.keyboardVisible) {
@@ -88,5 +87,22 @@ exports.hideKeyboard = function(win) {
 		win._txt.blur();
 	}
 };
-// */
+exports.hideKeyboard = hideKeyboard;
+
+exports.hideKeyboardEvent = function(win, e) {
+	/*
+	 WARNING: Do not use this if window has webview inside
+	 https://jira.appcelerator.org/browse/TIMOB-955
+	 
+	 e can be:
+	 	- click: window is click-able, list-view is not click-able
+		- singletap: window is not click-able, list-view is click-able
+	 * */
+	
+	win.addEventListener(e || 'click', function(e) {
+		if ( ['Ti.UI.TextField', 'Ti.UI.TextArea', 'Ti.UI.SearchBar', 'Ti.UI.Android.SearchView'].indexOf( e.source.apiName ) == -1 ) {
+			hideKeyboard(this);
+		}
+	});
+};
 
