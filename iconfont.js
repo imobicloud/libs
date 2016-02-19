@@ -22,6 +22,9 @@ exports.init = function(fontname) {
 	}
 };
 
+/*
+ require('iconfont').getText('collapse');
+ * */
 function getText(iconname, fontname) {
 	if (defaultFont == null) {
 		console.log('*** iconfont: Please call require("iconfont").init("fontname") before use it.');
