@@ -1,23 +1,48 @@
 var defaultFont;
 var maps = {};
 
-exports.init = function(fontname) {
-	maps[fontname] = {};
+exports.init = function(fontName) {
+	maps[fontName] = {};
 	
 	if (defaultFont == null) {
-		defaultFont = fontname;
+		defaultFont = fontName;
+	}
+	
+	var fontFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory + fontName + '.json');
+	if (!fontFile.exists()) { 
+		console.log('*** iconfont: Did you copy your font\'s [selection.json] file ' 
+			+ 'into the [lib] folder of your application and name it [' + fontName + '.json] ?'); 
 	}
 	
 	try {
-		var obj = JSON.parse(Titanium.Filesystem.getFile(Ti.Filesystem.resourcesDirectory + 'fontmaps/' + fontname + '.json').read().text);
-		var fontmap = obj.icons;
-		for (var i = 0, ii = fontmap.length; i < ii; i++) {
-			var iconName = fontmap[i].properties.name;
-			var code = fontmap[i].properties.code;
-			maps[fontname][iconName] = String.fromCharCode(code);
+		var fontObj = JSON.parse(fontFile.read().text);
+		
+		// https://github.com/MattMcFarland/com.mattmcfarland.fontawesome/blob/master/lib/icons.js
+		// iconfont-ex-1.json
+		if (Array.isArray(fontObj)) {
+			for (var i = 0, ii = fontObj.length; i < ii; i++) {
+				var properties = fontObj[i];
+				maps[fontName][properties[0]] = String.fromCharCode(properties[1]);
+			}
+		} else {
+			var fontMap = fontObj.icons;
+			// IcoMoon style
+			// iconfont-ex-2.json
+			if (fontMap) {
+				for (var i = 0, ii = fontMap.length; i < ii; i++) {
+					var properties = fontMap[i].properties;
+					maps[fontName][properties.name] = String.fromCharCode(properties.code);
+				}
+			} 
+			// https://github.com/k0sukey/TiIconicFont/blob/master/Resources/lib/FontAwesome.js
+			// iconfont-ex-3.json
+			else {
+				for (var key in fontObj) {
+					maps[fontName][key] = String.fromCharCode(fontObj[key]);
+				}
+			}
 		}
 	} catch (fontParseError) {
-		console.log('*** iconfont: There was a font parsing error.  ' + 'Did you copy your font\'s selection.json file ' + 'into the assets/fontmaps folder of your application and name it ' + fontname + '.json?');
 		console.log('*** iconfont: fontParseError: ' + fontParseError);
 	}
 };
@@ -25,13 +50,13 @@ exports.init = function(fontname) {
 /*
  require('iconfont').getText('collapse');
  * */
-function getText(iconname, fontname) {
+function getText(iconname, fontName) {
 	if (defaultFont == null) {
-		console.log('*** iconfont: Please call require("iconfont").init("fontname") before use it.');
+		console.log('*** iconfont: Please call require("iconfont").init("fontName") before use it.');
 	}
 	
 	if (typeof iconname == 'string') {
-		return maps[fontname || defaultFont][iconname];
+		return maps[fontName || defaultFont][iconname];
 	} else {
 		return String.fromCharCode(iconname);
 	}
