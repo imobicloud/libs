@@ -1,3 +1,7 @@
+// TODO: support Google Material Icon
+// https://github.com/google/material-design-icons/tree/master/iconfont
+// maps: https://github.com/google/material-design-icons/blob/master/iconfont/MaterialIcons-Regular.ijmap
+
 var defaultFont;
 var maps = {};
 
