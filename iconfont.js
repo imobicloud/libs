@@ -1,7 +1,3 @@
-// TODO: support Google Material Icon
-// https://github.com/google/material-design-icons/tree/master/iconfont
-// maps: https://github.com/google/material-design-icons/blob/master/iconfont/MaterialIcons-Regular.ijmap
-
 var defaultFont;
 var maps = {};
 
@@ -21,21 +17,43 @@ exports.init = function(fontName) {
 	try {
 		var fontObj = JSON.parse(fontFile.read().text);
 		
-		// https://github.com/MattMcFarland/com.mattmcfarland.fontawesome/blob/master/lib/icons.js
-		// iconfont-ex-1.json
 		if (Array.isArray(fontObj)) {
-			for (var i = 0, ii = fontObj.length; i < ii; i++) {
-				var properties = fontObj[i];
-				maps[fontName][properties[0]] = String.fromCharCode(properties[1]);
+			// https://materialdesignicons.com/
+			// Map: copied from preview.html in download package
+			// iconfont-ex-5.json
+			if (fontObj[0].hex) {
+				for (var i = 0, ii = fontObj.length; i < ii; i++) {
+					var properties = fontObj[i];
+					maps[fontName][properties.name] = String.fromCharCode(parseInt(properties.hex, 16));
+				}
+			} 
+			// https://github.com/MattMcFarland/com.mattmcfarland.fontawesome/blob/master/lib/icons.js
+			// iconfont-ex-1.json
+			else {
+				for (var i = 0, ii = fontObj.length; i < ii; i++) {
+					var properties = fontObj[i];
+					maps[fontName][properties[0]] = String.fromCharCode(properties[1]);
+				}
 			}
 		} else {
 			var fontMap = fontObj.icons;
-			// IcoMoon style
-			// iconfont-ex-2.json
 			if (fontMap) {
-				for (var i = 0, ii = fontMap.length; i < ii; i++) {
-					var properties = fontMap[i].properties;
-					maps[fontName][properties.name] = String.fromCharCode(properties.code);
+				// IcoMoon style
+				// iconfont-ex-2.json
+				if (Array.isArray(fontMap)) {
+					for (var i = 0, ii = fontMap.length; i < ii; i++) {
+						var properties = fontMap[i].properties;
+						maps[fontName][properties.name] = String.fromCharCode(properties.code);
+					}
+				} 
+				// Google Material Icon
+				// iconfont-ex-4.json
+				// Font: https://github.com/google/material-design-icons/tree/master/iconfont
+				// Map: https://github.com/google/material-design-icons/blob/master/iconfont/MaterialIcons-Regular.ijmap
+				else {
+					for (var key in fontMap) {
+						maps[fontName][fontMap[key].name] = String.fromCharCode('0x' + key);
+					}
 				}
 			} 
 			// https://github.com/k0sukey/TiIconicFont/blob/master/Resources/lib/FontAwesome.js
