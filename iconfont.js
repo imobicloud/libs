@@ -78,7 +78,8 @@ function getText(iconname, fontName) {
 	}
 	
 	if (typeof iconname == 'string') {
-		return maps[fontName || defaultFont][iconname];
+		var map = maps[fontName || defaultFont];
+		return map ? map[iconname] : '';
 	} else {
 		return String.fromCharCode(iconname);
 	}
