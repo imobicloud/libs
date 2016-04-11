@@ -1,3 +1,4 @@
+/*
 exports.openPhotoGallery = function(params) {
 	Titanium.Media.openPhotoGallery(_.extend({
 		autoHide: true,
@@ -13,7 +14,9 @@ exports.openPhotoGallery = function(params) {
         }
 	}, params));
 };
+*/
 
+/*
 exports.showCamera = function(params) {
 	Titanium.Media.showCamera(_.extend({
 		saveToPhotoGallery: true,
@@ -28,7 +31,9 @@ exports.showCamera = function(params) {
         }
 	}, params));
 };
+*/
 
+/*
 exports.showTimePicker = function(container, params) {
 	if (OS_IOS) {
 		var timePicker = Alloy.createController('location/add/time_picker');
@@ -51,7 +56,9 @@ exports.showTimePicker = function(container, params) {
 		}, params));
 	}
 };
+*/
 
+/*
 exports.showDatePicker = function(container, params) {
 	if (OS_IOS) {
 		var datePicker = Alloy.createController('location/invite/date_picker');
@@ -74,6 +81,7 @@ exports.showDatePicker = function(container, params) {
 		}, params));
 	}
 };
+*/
 
 function hideKeyboard(win) {
 	if (OS_ANDROID) {
