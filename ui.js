@@ -14,7 +14,7 @@ exports.openPhotoGallery = function(params) {
         }
 	}, params));
 };
-*/
+// */
 
 /*
 exports.showCamera = function(params) {
@@ -31,12 +31,25 @@ exports.showCamera = function(params) {
         }
 	}, params));
 };
-*/
+// */
+
+/*
+function validateDate(params) {
+  	var value = params.value;
+  	if (value) {
+  		if (typeof value.toDate == 'function') {
+  			params.value = value.toDate();
+  		}
+	} else {
+		params.value = new Date();
+	}
+}
+// */
 
 /*
 exports.showTimePicker = function(container, params) {
 	if (OS_IOS) {
-		var timePicker = Alloy.createController('location/add/time_picker');
+		var timePicker = Alloy.createController('ui/time_picker');
 		timePicker.on('done', function(e) {
 			params.callback(e);
 			container.remove(timePicker.getView());
@@ -45,9 +58,12 @@ exports.showTimePicker = function(container, params) {
 		container.add(timePicker.getView());
 		timePicker.show(params);
 	} else {
+		validateDate(params);
+		
 		Ti.UI.createPicker().showTimePickerDialog(_.extend({ 
 			callback: function(e) {
-	        	Ti.API.error('show time picker callback: ' + JSON.stringify( e ));
+				if (e.cancel) { return; }
+	        	Ti.API.error('show time picker callback: ' + JSON.stringify( e.value ));
 	        }, 
 			okButtonTitle: 'Done',
 			title: 'Select Time', 
@@ -56,12 +72,12 @@ exports.showTimePicker = function(container, params) {
 		}, params));
 	}
 };
-*/
+// */
 
 /*
 exports.showDatePicker = function(container, params) {
 	if (OS_IOS) {
-		var datePicker = Alloy.createController('location/invite/date_picker');
+		var datePicker = Alloy.createController('ui/date_picker');
 		datePicker.on('done', function(e) {
 			params.callback(e);
 			container.remove(datePicker.getView());
@@ -70,9 +86,12 @@ exports.showDatePicker = function(container, params) {
 		container.add(datePicker.getView());
 		datePicker.show(params);
 	} else {
+		validateDate(params);
+		
 		Ti.UI.createPicker().showDatePickerDialog(_.extend({ 
 			callback: function(e) {
-	        	Ti.API.error('show date picker callback: ' + JSON.stringify( e ));
+				if (e.cancel) { return; }
+	        	Ti.API.error('show date picker callback: ' + JSON.stringify( e.value ));
 	        }, 
 			okButtonTitle: 'Done',
 			title: 'Select Date', 
@@ -81,7 +100,7 @@ exports.showDatePicker = function(container, params) {
 		}, params));
 	}
 };
-*/
+// */
 
 function hideKeyboard(win) {
 	if (OS_ANDROID) {
