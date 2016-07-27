@@ -1,4 +1,3 @@
-/*
 exports.Photos = {
 	showGallery: function(params) {
 		Titanium.Media.openPhotoGallery(_.extend({
@@ -31,9 +30,7 @@ exports.Photos = {
 		}, params));
 	}
 };
-// */
 
-/*
 exports.Picker = {
 	validateDate: function (params) {
 	  	var value = params.value;
@@ -45,46 +42,44 @@ exports.Picker = {
 			params.value = new Date();
 		}
 	},
-	showTimePicker: function(params) {
+	/*
+	params = {
+	 	type: 'date' or 'time',
+	 	value: new Date(),
+	 	title: 'picker title',
+	 	okButtonTitle: 'Update',
+	 	format24: false, // time only
+	 	callback: function(e){ e.cancel e.value }
+	}
+	* */
+	showDateTimePicker: function(params) {
 		this.validateDate(params);
 		if (OS_IOS) {
-			var timePicker = Alloy.createController('ui/time_picker');
-			timePicker.on('done', params.callback);
-			timePicker.show(params);
+			var picker = Alloy.createController('ui/date_time_picker');
+			picker.on('done', params.callback);
+			picker.show(params);
 		} else {
-			Ti.UI.createPicker().showTimePickerDialog(_.extend({ 
+			var title, funct;
+			if (params.type == 'date') {
+				title = 'Select Date';
+				funct = 'showDatePickerDialog';
+			} else {
+				title = 'Select Time';
+				funct = 'showTimePickerDialog';
+			}
+			Ti.UI.createPicker()[funct](_.extend({
 				callback: function(e) {
 					if (e.cancel) { return; }
-		        	Ti.API.error('show time picker callback: ' + JSON.stringify( e.value ));
+		        	Ti.API.error('show date time picker callback: ' + JSON.stringify( e.value ));
 		        }, 
 				okButtonTitle: 'Done',
-				title: 'Select Time', 
-				value: null, 
-				format24: false 
-			}, params));
-		}
-	},
-	showDatePicker: function(params) {
-		this.validateDate(params);
-		if (OS_IOS) {
-			var datePicker = Alloy.createController('ui/date_picker');
-			datePicker.on('done', params.callback);
-			datePicker.show(params);
-		} else {
-			Ti.UI.createPicker().showDatePickerDialog(_.extend({ 
-				callback: function(e) {
-					if (e.cancel) { return; }
-		        	Ti.API.error('show date picker callback: ' + JSON.stringify( e.value ));
-		        }, 
-				okButtonTitle: 'Done',
-				title: 'Select Date', 
+				title: title, 
 				value: null, 
 				format24: false 
 			}, params));
 		}
 	}
 };
-// */
 
 function hideKeyboard(container) {
 	if (OS_ANDROID) {
