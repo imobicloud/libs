@@ -1,18 +1,32 @@
 exports.Photos = {
 	showGallery: function(params) {
-		Titanium.Media.openPhotoGallery(_.extend({
-			autoHide: true,
-	        mediaTypes: [ Ti.Media.MEDIA_TYPE_PHOTO ],
-	        success: function(e) {
-	        	Ti.API.error('open gallery success: ' + JSON.stringify( e ));
-	        },
+		var defaults = {
+			allowMultiple: false,
+			mediaTypes: [Ti.Media.MEDIA_TYPE_PHOTO],
+			success: function(e) {
+	        	Ti.API.error('open gallery success: ' + JSON.stringify( e.media ));
+	       	},
 	        cancel: function(e) {
 	        	Ti.API.error('open gallery cancel: ' + JSON.stringify( e ));
 	        },
 	        error: function(e) {
 	            Ti.API.error('open gallery error: ' + JSON.stringify( e ));
 	        }
-		}, params));
+		};
+		
+		var module, moduleDefaults;
+		if (OS_IOS) {
+			module = require('ti.gmimagepicker');
+			moduleDefaults = {
+				// autoHide: true, // native openPhotoGallery's property
+				maxSelectablePhotos: -1 // no limit
+			};
+		} else {
+			module = Titanium.Media;
+			moduleDefaults = {};
+		}
+		
+		module.openPhotoGallery(_.extend(defaults, moduleDefaults, params));
 	},
 	
 	showCamera: function(params) {
