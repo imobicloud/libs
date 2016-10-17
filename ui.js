@@ -15,7 +15,7 @@ exports.Photos = {
 		};
 		
 		var module, moduleDefaults;
-		if (OS_IOS) {
+		if (OS_IOS && params.allowMultiple) {
 			module = require('ti.gmimagepicker');
 			moduleDefaults = {
 				// autoHide: true, // native openPhotoGallery's property
@@ -127,5 +127,3 @@ exports.Keyboard = {
 		});
 	}
 };
-
-
